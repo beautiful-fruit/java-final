@@ -23,6 +23,9 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'io.kubernetes:client-java:15.0.1'
+    implementation "io.etcd:jetcd-core:0.8.5"
+
 }
 
 tasks.named('test') {

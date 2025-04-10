@@ -1,0 +1,46 @@
+services:
+  etcd:
+    profiles: [dev, ci]
+    image: quay.io/coreos/etcd:v3.5.9
+    command:
+      - "etcd"
+      - "--name=etcd"
+      - "--listen-client-urls=http://0.0.0.0:2379"
+      - "--advertise-client-urls=http://0.0.0.0:2379"
+      - "--initial-cluster-state=new"
+      - "--initial-cluster"
+      - "etcd=http://0.0.0.0:2380"
+      - "--listen-peer-urls"
+      - "http://0.0.0.0:2380"
+      - ""
+      - "--initial-advertise-peer-urls"
+      - "http://0.0.0.0:2380"
+    ports:
+      - "127.0.0.1:2379:2379/tcp"
+      - "127.0.0.1:2379:2379/udp"
+  k3s:
+    profiles: [dev, ci]
+    image: rancher/k3s:v1.29.15-k3s1
+    ports: ["127.0.0.1:6443:6443"]
+    privileged: true
+    command: ["server"]
+    environment:
+      K3S_KUBECONFIG_MODE: "644"
+    volumes:
+      - k3s_data:/var/lib/rancher/k3s
+      - /tmp/kubeconfig-devfinal/kubeconfig:/etc/rancher/k3s/
+
+  final:
+    profiles: [ci]
+    build: .
+    volumes:
+      - /tmp/kubeconfig-devfinal/kubeconfig:/kube/kubeconfig:ro
+    links:
+      - etcd
+      - k3s
+    depends_on:
+      - etcd
+      - kind
+
+volumes:
+  k3s_data: {}
