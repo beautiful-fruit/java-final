@@ -6,12 +6,12 @@
 </head>
 <body>
 <h1>Add Two Numbers</h1>
-<form th:action="@{/add}" method="post">
+<form method="post" th:action="@{/add}">
     <label for="firstNumber">First Number:</label>
-    <input type="number" id="firstNumber" name="firstNumber" required>
+    <input id="firstNumber" name="firstNumber" required type="number">
     <br><br>
     <label for="secondNumber">Second Number:</label>
-    <input type="number" id="secondNumber" name="secondNumber" required>
+    <input id="secondNumber" name="secondNumber" required type="number">
     <br><br>
     <button type="submit">Add</button>
 </form>
