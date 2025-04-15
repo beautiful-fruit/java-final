@@ -38,4 +38,16 @@ public class User {
     public int getContainerNumber() {
         return containers.size();
     }
+
+    /**
+     * Get the container with a specific index
+     * This function won't check if the index is valid
+     *
+     * @param idx the index
+     *
+     * @return a Container object with respect to the index
+     */
+    public Container getContainer(int idx) {
+        return containers.get(idx);
+    }
 }
