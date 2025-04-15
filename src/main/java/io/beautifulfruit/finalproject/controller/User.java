@@ -29,4 +29,13 @@ public class User {
         containers.add(container);
         return 0;
     }
+
+    /**
+     * Get the number of containers
+     *
+     * @return an integer represents the number of containers
+     */
+    public int getContainerNumber() {
+        return containers.size();
+    }
 }
