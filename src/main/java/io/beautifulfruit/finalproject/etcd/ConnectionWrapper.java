@@ -10,7 +10,7 @@ public interface ConnectionWrapper {
      * @param value the value to store
      * @return CompletableFuture<Void>
      */
-    CompletableFuture<Void> store(Byte[] key, Byte[] value);
+    CompletableFuture<Void> store(String prefix, byte[] key, byte[] value);
 
     /**
      * Get the value for the key from etcd
@@ -18,5 +18,5 @@ public interface ConnectionWrapper {
      * @param key the key to get
      * @return CompletableFuture<Byte [ ]>
      */
-    CompletableFuture<Byte[]> get(String key);
+    CompletableFuture<byte[]> get(String prefix, byte[] key);
 }

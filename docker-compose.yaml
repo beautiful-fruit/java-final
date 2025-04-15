@@ -12,7 +12,6 @@ services:
       - "etcd=http://0.0.0.0:2380"
       - "--listen-peer-urls"
       - "http://0.0.0.0:2380"
-      - ""
       - "--initial-advertise-peer-urls"
       - "http://0.0.0.0:2380"
     ports:
