@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class Upload {
     String content;
     String uploadStatus = "No file";
-    User testUser = new User(1, 100);
+    User testUser = new User(1);
 
     @PostMapping("/upload")
     public String handleUpload(@RequestBody Map<String, String> body, Model model) {
@@ -20,14 +20,18 @@ public class Upload {
         if (file.length() == 0)
             return "fail";
         testUser.addContainer(file);
+        DatabaseController.updateUser(testUser);
         uploadStatus = "Success";
         return "success";
     }
 
     @GetMapping("/upload_status")
     public String getUploadStatus() {
-        if (testUser.getContainerNumber() != 0)
-            return testUser.getContainer(testUser.getContainerNumber() - 1).dockerCompose;
+        User user = DatabaseController.queryUser(String.valueOf(testUser.id));
+        if (user == null)
+            return "fail";
+        if (user.getContainerNumber() != 0)
+            return user.getContainer(user.getContainerNumber() - 1).dockerCompose;
         return uploadStatus;
     }
 }
