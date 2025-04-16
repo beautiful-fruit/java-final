@@ -1,4 +1,4 @@
-package io.beautifulfruit.finalproject.k8s;
+package io.beautifulfruit.finalproject.k8s.resource;
 
 import java.util.concurrent.CompletableFuture;
 

@@ -1,4 +1,4 @@
-package io.beautifulfruit.finalproject.k8s;
+package io.beautifulfruit.finalproject.k8s.resource;
 
 import io.kubernetes.client.common.KubernetesObject;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
