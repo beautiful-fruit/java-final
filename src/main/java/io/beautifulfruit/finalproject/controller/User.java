@@ -2,16 +2,17 @@ package io.beautifulfruit.finalproject.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import io.beautifulfruit.finalproject.k8s.Quota;
 
 
 public class User {
     int id;
-    int quota;
+    Quota quota;
     private List<Container> containers;
 
-    public User(int id, int quota) {
+    public User(int id) {
         this.id = id;
-        this.quota = quota;
+        this.quota = new Quota();
         this.containers = new ArrayList<Container>();
     }
 
