@@ -1,6 +1,6 @@
 package io.beautifulfruit.finalproject;
 
-import io.beautifulfruit.finalproject.etcd.NativeConnectionWrapper;
+import io.beautifulfruit.finalproject.etcd.connection.NativeConnectionWrapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

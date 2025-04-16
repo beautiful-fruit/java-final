@@ -1,4 +1,4 @@
-package io.beautifulfruit.finalproject.etcd;
+package io.beautifulfruit.finalproject.etcd.connection;
 
 import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;

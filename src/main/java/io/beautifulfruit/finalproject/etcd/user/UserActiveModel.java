@@ -8,9 +8,9 @@ public class UserActiveModel {
 
     public String name;
     public String passwordHash;
-    public int cpu;
-    public int memory;
-    public int disk;
+    public int cpu = 40;
+    public int memory = 2048;
+    public int disk = 2048;
 
     public UserActiveModel(UserModel model) {
         this.name = model.username;

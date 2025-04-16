@@ -1,4 +1,4 @@
-package io.beautifulfruit.finalproject.etcd;
+package io.beautifulfruit.finalproject.etcd.connection;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package io.beautifulfruit.finalproject.etcd;
+package io.beautifulfruit.finalproject.etcd.connection;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
