@@ -24,8 +24,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'io.kubernetes:client-java:15.0.1'
-    implementation "io.etcd:jetcd-core:0.8.5"
-
+    implementation 'io.etcd:jetcd-core:0.8.5'
+    implementation 'de.mkammerer:argon2-jvm:2.12'
+    implementation 'com.google.code.gson:gson:2.13.0'
 }
 
 tasks.named('test') {
