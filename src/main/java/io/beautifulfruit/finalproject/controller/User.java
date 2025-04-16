@@ -1,8 +1,9 @@
 package io.beautifulfruit.finalproject.controller;
 
+import io.beautifulfruit.finalproject.k8s.Quota;
+
 import java.util.ArrayList;
 import java.util.List;
-import io.beautifulfruit.finalproject.k8s.Quota;
 
 
 public class User {
@@ -20,7 +21,6 @@ public class User {
      * Add a new container to the User
      *
      * @param dockerCompose the docker compose plaintext file
-     *
      * @return -1 if fail, otherwise 0
      */
     public int addContainer(String dockerCompose) {
@@ -45,7 +45,6 @@ public class User {
      * This function won't check if the index is valid
      *
      * @param idx the index
-     *
      * @return a Container object with respect to the index
      */
     public Container getContainer(int idx) {
