@@ -2,8 +2,6 @@ package io.beautifulfruit.finalproject.controller;
 
 import java.util.*;
 
-import org.bouncycastle.asn1.teletrust.TeleTrusTNamedCurves;
-
 public class DatabaseController{
     
     static Map<String, User> testDatabase = new HashMap<String, User>(); 
