@@ -9,9 +9,9 @@ public class UserModel {
 
     public final String username;
     public final String passwordHash;
-    public int cpu = 40; // 0.1 CPU
-    public int memory = 2 * 1024; // MB
-    public int disk = 2 * 1024; // MB
+    public int cpu; // 0.1 CPU
+    public int memory; // MB
+    public int disk; // MB
 
     public UserModel(byte[] json) {
         UserModel model = gson.fromJson(new String(json, StandardCharsets.UTF_8), UserModel.class);
