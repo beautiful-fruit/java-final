@@ -27,6 +27,7 @@ dependencies {
     implementation 'io.etcd:jetcd-core:0.8.5'
     implementation 'de.mkammerer:argon2-jvm:2.12'
     implementation 'com.google.code.gson:gson:2.13.0'
+    implementation 'org.yaml.snakeyaml.Yaml:2.2'
 }
 
 tasks.named('test') {

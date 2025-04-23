@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * NativeConnectionWrapper is a wrapper around the etcd client
  */
 @Component
-public class NativeConnectionWrapper {
+public class NativeConnectionWrapper implements ConnectionWrapper {
     /**
      * Delimiter used to separate the prefix and the key
      * <p>
