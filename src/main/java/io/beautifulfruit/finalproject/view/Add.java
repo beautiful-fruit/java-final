@@ -1,4 +1,4 @@
-package io.beautifulfruit.finalproject.controller;
+package io.beautifulfruit.finalproject.view;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

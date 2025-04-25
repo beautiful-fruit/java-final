@@ -1,4 +1,4 @@
-package io.beautifulfruit.finalproject.controller;
+package io.beautifulfruit.finalproject.view;
 
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

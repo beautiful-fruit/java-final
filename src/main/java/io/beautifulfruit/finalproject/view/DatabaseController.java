@@ -1,4 +1,4 @@
-package io.beautifulfruit.finalproject.controller;
+package io.beautifulfruit.finalproject.view;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package io.beautifulfruit.finalproject.controller;
+package io.beautifulfruit.finalproject.view;
 
 import io.beautifulfruit.finalproject.k8s.Quota;
 

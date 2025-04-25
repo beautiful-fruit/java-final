@@ -1,4 +1,4 @@
-package io.beautifulfruit.finalproject.controller;
+package io.beautifulfruit.finalproject.view;
 
 public enum Status {
     READY, RUNNING, INVALID
