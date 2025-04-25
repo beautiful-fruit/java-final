@@ -13,6 +13,8 @@ public class UserModel {
     public int memory; // MB
     public int disk; // MB
 
+    DeploymentSuperblock superblock;
+
     public UserModel(byte[] json) {
         UserModel model = gson.fromJson(new String(json, StandardCharsets.UTF_8), UserModel.class);
 
@@ -21,6 +23,7 @@ public class UserModel {
         this.cpu = model.cpu;
         this.memory = model.memory;
         this.disk = model.disk;
+        this.superblock = model.superblock;
     }
 
     public UserModel(UserActiveModel user) {
@@ -29,6 +32,7 @@ public class UserModel {
         this.cpu = user.cpu;
         this.memory = user.memory;
         this.disk = user.disk;
+        this.superblock = user.superblock;
     }
 
     public String toJson() {

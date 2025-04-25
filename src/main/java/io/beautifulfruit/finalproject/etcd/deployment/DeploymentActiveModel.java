@@ -1,8 +1,5 @@
 package io.beautifulfruit.finalproject.etcd.deployment;
 
-// Note: No Argon2 equivalent is typically needed for Deployment,
-//       whereas UserActiveModel had password hashing logic.
-
 public class DeploymentActiveModel {
     public String uuid; // deployment_uuid
     public String dockercomposeText; // dockercompose_text
@@ -20,7 +17,6 @@ public class DeploymentActiveModel {
         this.disk = model.disk;
     }
 
-    // Constructor for creating a new deployment before saving
     public DeploymentActiveModel(String uuid, String dockercomposeText, String ownername, int cpu, int memory, int disk) {
         this.uuid = uuid;
         this.dockercomposeText = dockercomposeText;
@@ -30,11 +26,9 @@ public class DeploymentActiveModel {
         this.disk = disk;
     }
 
-    // Optional: Constructor with default resource values
     public DeploymentActiveModel(String uuid, String dockercomposeText, String ownername) {
         this.uuid = uuid;
         this.dockercomposeText = dockercomposeText;
         this.ownername = ownername;
-        // Use default values for cpu, memory, disk defined above
     }
 }
