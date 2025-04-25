@@ -1,5 +1,6 @@
 package io.beautifulfruit.finalproject.view;
 import java.util.Map;
+import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
@@ -8,6 +9,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.beautifulfruit.finalproject.etcd.deployment.DeploymentActiveModel;
+import io.beautifulfruit.finalproject.etcd.deployment.DeploymentEntity;
 import io.beautifulfruit.finalproject.etcd.user.UserActiveModel;
 import io.beautifulfruit.finalproject.etcd.user.UserEntity;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +27,9 @@ public class Upload {
 
     @Autowired
     private Validation validation;
+
+    @Autowired
+    private DeploymentEntity deploymentEntity;
 
     @PostMapping("/upload")
     public String handleUpload(
@@ -42,11 +48,21 @@ public class Upload {
             return "fail";
 
         String file = body.get("file");
-
         if (file.length() == 0)
             return "fail";
 
-        // TODO: add container
+        DeploymentActiveModel deploymentActiveModel =
+            new DeploymentActiveModel(file, userActiveModel.name);
+        try {
+            deploymentEntity.updateDeployment(deploymentActiveModel).join();
+            userActiveModel.addDeploymentID(deploymentActiveModel.uuid);
+            userEntity.saveUser(userActiveModel).join();
+        } catch (Exception e) {
+            System.out.println(e);
+            // TODO: User remove the deployment
+            return "fail";
+        }
+        System.out.println("success");
         uploadStatus = "Success";
         return "success";
     }
@@ -57,13 +73,19 @@ public class Upload {
 
         if (username == null)
             return "fail";
-
         UserActiveModel userActiveModel = userEntity.findUserByName(username).join();
 
         if (userActiveModel == null)
             return "fail";
 
+        ArrayList<String> uuids = userActiveModel.getOwnDeploymentID();
+        String dockerCompose = "";
+        for (String uuid : uuids) {
+            DeploymentActiveModel deploymentActiveModel =
+                deploymentEntity.findDeploymentByUuid(uuid).join();
+            dockerCompose += deploymentActiveModel.dockercomposeText + "\n";
+        }
         // TODO: return container message
-        return uploadStatus;
+        return dockerCompose;
     }
 }

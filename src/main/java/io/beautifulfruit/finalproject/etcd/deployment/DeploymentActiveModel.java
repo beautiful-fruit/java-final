@@ -1,5 +1,7 @@
 package io.beautifulfruit.finalproject.etcd.deployment;
 
+import java.util.UUID;
+
 public class DeploymentActiveModel {
     public String uuid; // deployment_uuid
     public String dockercomposeText; // dockercompose_text
@@ -17,8 +19,8 @@ public class DeploymentActiveModel {
         this.disk = model.disk;
     }
 
-    public DeploymentActiveModel(String uuid, String dockercomposeText, String ownername, int cpu, int memory, int disk) {
-        this.uuid = uuid;
+    public DeploymentActiveModel(String dockercomposeText, String ownername, int cpu, int memory, int disk) {
+        this.uuid = UUID.randomUUID().toString();
         this.dockercomposeText = dockercomposeText;
         this.ownername = ownername;
         this.cpu = cpu;
@@ -26,8 +28,8 @@ public class DeploymentActiveModel {
         this.disk = disk;
     }
 
-    public DeploymentActiveModel(String uuid, String dockercomposeText, String ownername) {
-        this.uuid = uuid;
+    public DeploymentActiveModel(String dockercomposeText, String ownername) {
+        this.uuid = UUID.randomUUID().toString();
         this.dockercomposeText = dockercomposeText;
         this.ownername = ownername;
     }
