@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>MainPage</title>
+</head>
+<body>
+
+
+<h1>Login</h1>
+<form method="post" th:action="@{/login}">
+    <label>username:</label>
+    <input name="username"/>
+    <br/>
+    <label>password:</label>
+    <input name="password"/>
+    <button type="submit">Login</button>
+</form>
+
+<h1>Register</h1>
+<form method="post" th:action="@{/register}">
+    <label>username:</label>
+    <input name="username"/>
+    <br/>
+    <label>password:</label>
+    <input name="password"/>
+    <button type="submit">Register</button>
+</form>
+
+</body>
+</html>
