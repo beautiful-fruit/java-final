@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import io.beautifulfruit.finalproject.etcd.connection.NativeConnectionWrapper;
 import io.beautifulfruit.finalproject.etcd.user.UserActiveModel;
 import io.beautifulfruit.finalproject.etcd.user.UserEntity;
 import io.jsonwebtoken.Claims;
@@ -29,8 +28,6 @@ public class Login {
     @Autowired
     private UserEntity userEntity;
 
-    @Autowired
-    private NativeConnectionWrapper wrapper;
 
     public String generateToken(String username) {
         return Jwts.builder()
