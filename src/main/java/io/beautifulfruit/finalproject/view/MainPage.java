@@ -3,6 +3,7 @@ package io.beautifulfruit.finalproject.view;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -10,10 +11,13 @@ import jakarta.servlet.http.HttpServletRequest;
 @Controller
 public class MainPage {
 
+    @Autowired
+    Validation validation;
+
     // Display the form for addition
     @GetMapping("/")
     public String mainpage(HttpServletRequest request) {
-        String username = Validation.validateTokenFromCookie(request);
+        String username = validation.validateTokenFromCookie(request);
         if (username == null)
             return "redirect:/login";
         return "upload";

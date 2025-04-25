@@ -1,7 +1,6 @@
 package io.beautifulfruit.finalproject.view;
 
-import java.security.Key;
-import java.util.Date;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -11,44 +10,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import io.beautifulfruit.finalproject.etcd.user.UserActiveModel;
 import io.beautifulfruit.finalproject.etcd.user.UserEntity;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 
 
 @Controller
 public class Login {
-    private static final Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-
-    private static final long EXPIRATION = 3600000;
-
     @Autowired
     private UserEntity userEntity;
 
+    @Autowired
+    private Validation validation;
 
-    public String generateToken(String username) {
-        return Jwts.builder()
-                .setSubject(username)
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
-                .signWith(secretKey)
-                .compact();
-    }
-
-    public static String validateToken(String token) {
-        try {
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(secretKey)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-            return claims.getSubject();
-        } catch (Exception e) {
-            return null;
-        }
-    }
 
     // Display the form for addition
     @PostMapping("/login")
@@ -66,7 +39,7 @@ public class Login {
         if (!userActiveModel.passwordMatch(password))
             return "redirect:/";
 
-        Cookie cookie = new Cookie("token", generateToken(username));
+        Cookie cookie = new Cookie("token", validation.generateToken(username));
         response.addCookie(cookie);
         return "redirect:/";
     }

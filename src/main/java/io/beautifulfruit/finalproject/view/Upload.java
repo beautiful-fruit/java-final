@@ -22,13 +22,16 @@ public class Upload {
     @Autowired
     private UserEntity userEntity;
 
+    @Autowired
+    private Validation validation;
+
     @PostMapping("/upload")
     public String handleUpload(
         @RequestBody Map<String, String> body,
         Model model,
         HttpServletRequest request
         ){
-        String username = Validation.validateTokenFromCookie(request);
+        String username = validation.validateTokenFromCookie(request);
 
         if (username == null)
             return "fail";
@@ -50,7 +53,7 @@ public class Upload {
 
     @GetMapping("/upload_status")
     public String getUploadStatus(HttpServletRequest request) {
-        String username = Validation.validateTokenFromCookie(request);
+        String username = validation.validateTokenFromCookie(request);
 
         if (username == null)
             return "fail";

@@ -1,12 +1,24 @@
 package io.beautifulfruit.finalproject.view;
 
+import java.security.Key;
+import java.util.Arrays;
+import java.util.Date;
+
+import org.springframework.stereotype.Component;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.Arrays;
 
-
+@Component
 public class Validation {
-    public static String validateTokenFromCookie(HttpServletRequest request) {
+    private final Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+
+    private final long EXPIRATION = 3600000;
+    public String validateTokenFromCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) return null;
 
@@ -14,7 +26,28 @@ public class Validation {
                 .filter(c -> c.getName().equals("token"))
                 .map(Cookie::getValue)
                 .findFirst()
-                .map(Login::validateToken)
+                .map(this::validateToken)
                 .orElse(null);
+    }
+
+    public String generateToken(String username) {
+        return Jwts.builder()
+                .setSubject(username)
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .signWith(secretKey)
+                .compact();
+    }
+
+    public String validateToken(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            return claims.getSubject();
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
