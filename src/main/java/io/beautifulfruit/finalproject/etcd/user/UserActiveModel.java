@@ -3,6 +3,8 @@ package io.beautifulfruit.finalproject.etcd.user;
 import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
 
+import io.beautifulfruit.finalproject.k8s.Quota;
+
 import java.util.ArrayList;
 
 public class UserActiveModel {
@@ -10,24 +12,21 @@ public class UserActiveModel {
 
     public String name;
     public String passwordHash;
-    public int cpu = 40;
-    public int memory = 2048;
-    public int disk = 2048;
+    public Quota quota;
 
     DeploymentSuperblock superblock = new DeploymentSuperblock(null);
 
     public UserActiveModel(UserModel model) {
         this.name = model.username;
         this.passwordHash = model.passwordHash;
-        this.cpu = model.cpu;
-        this.memory = model.memory;
-        this.disk = model.disk;
+        this.quota = new Quota(model.quota.cpu, model.quota.disk, model.quota.memory);
         this.superblock = model.superblock;
     }
 
     public UserActiveModel(String name, String passwordHash) {
         this.name = name;
         this.passwordHash = argon2.hash(10, 65536, 1, passwordHash.getBytes());
+        this.quota = new Quota(2048, 40, 2048);
     }
 
     public boolean passwordMatch(String password) {

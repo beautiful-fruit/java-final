@@ -50,11 +50,28 @@ public class Upload {
             return "fail";
 
         String file = body.get("file");
-        if (file.length() == 0)
+        if (file == null || file.length() == 0)
             return "fail";
 
+        int cpu, memory, disk;
+        try {
+            cpu = Integer.parseInt(body.get("cpu"));
+            memory = Integer.parseInt(body.get("memory"));
+            disk = Integer.parseInt(body.get("disk"));
+        } catch (Exception e) {
+            return "fail";
+        }
+        if (cpu > userActiveModel.quota.cpu
+            || memory > userActiveModel.quota.memory
+            || disk > userActiveModel.quota.disk
+            ) {
+            return "Out of resource";
+        }
+        userActiveModel.quota.cpu -= cpu;
+        userActiveModel.quota.memory -= memory;
+        userActiveModel.quota.disk -= disk;
         DeploymentActiveModel deploymentActiveModel =
-            new DeploymentActiveModel(file, userActiveModel.name);
+            new DeploymentActiveModel(file, userActiveModel.name, cpu, memory, disk);
         try {
             deploymentEntity.updateDeployment(deploymentActiveModel).join();
             userActiveModel.addDeploymentID(deploymentActiveModel.uuid);
@@ -97,9 +114,9 @@ public class Upload {
         }
         informations.put("containers", containers);
         informations.put("username", userActiveModel.name);
-        informations.put("cpu", userActiveModel.cpu);
-        informations.put("memory", userActiveModel.memory);
-        informations.put("disk", userActiveModel.disk);
+        informations.put("cpu", userActiveModel.quota.cpu);
+        informations.put("memory", userActiveModel.quota.memory);
+        informations.put("disk", userActiveModel.quota.disk);
         return informations;
     }
 }

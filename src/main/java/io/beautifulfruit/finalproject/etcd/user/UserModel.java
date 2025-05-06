@@ -4,15 +4,14 @@ import com.google.gson.Gson;
 
 import java.nio.charset.StandardCharsets;
 
+import io.beautifulfruit.finalproject.k8s.Quota;
+
 public class UserModel {
     private static final Gson gson = new Gson();
 
     public final String username;
     public final String passwordHash;
-    public int cpu; // 0.1 CPU
-    public int memory; // MB
-    public int disk; // MB
-
+    public Quota quota;
     DeploymentSuperblock superblock;
 
     public UserModel(byte[] json) {
@@ -20,18 +19,14 @@ public class UserModel {
 
         this.username = model.username;
         this.passwordHash = model.passwordHash;
-        this.cpu = model.cpu;
-        this.memory = model.memory;
-        this.disk = model.disk;
+        this.quota = new Quota(model.quota.cpu, model.quota.disk, model.quota.memory);
         this.superblock = model.superblock;
     }
 
     public UserModel(UserActiveModel user) {
         this.username = user.name;
         this.passwordHash = user.passwordHash;
-        this.cpu = user.cpu;
-        this.memory = user.memory;
-        this.disk = user.disk;
+        this.quota = new Quota(user.quota.cpu, user.quota.disk, user.quota.memory);
         this.superblock = user.superblock;
     }
 

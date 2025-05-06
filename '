@@ -1,0 +1,19 @@
+Enable user status fetching
+
+This change provides frontend with fetching user status from backend.
+These status include how much resource the user has, how many
+containers alive and the detail informations of each container.
+Moreover, frontend can send a signal to delete the specific container
+by uuid.
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch view-develop
+# Changes to be committed:
+#	new file:   src/main/java/io/beautifulfruit/finalproject/view/Delete.java
+#	modified:   src/main/java/io/beautifulfruit/finalproject/view/Upload.java
+#	new file:   src/main/resources/static/css/style.css
+#	modified:   src/main/resources/static/javascript/upload.js
+#	modified:   src/main/resources/templates/login.html
+#	modified:   src/main/resources/templates/upload.html
+#

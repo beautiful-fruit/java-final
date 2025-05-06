@@ -8,7 +8,21 @@
 <body>
 <h1>Upload Dockerfile</h1>
 <form id="upload_form">
+    <label>docker compose file: </label>
     <input name="file" required type="file">
+    <br><br>
+    <label>cpu: </label>
+    <input name="cpu" required type="number">
+    <label> x 0.01</label>
+    <br><br>
+    <label>memory: </label>
+    <input name="memory" required type="number">
+    <label> MB</label>
+    <br><br>
+    <label>disk: </label>
+    <input name="disk" required type="number">
+    <label> MB</label>
+    <br><br>
     <button type="submit">Upload</button>
 </form>
 <p id="upload_status"></p>

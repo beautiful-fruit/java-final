@@ -7,18 +7,32 @@ document.getElementById("upload_form").addEventListener(
         e.preventDefault();
         const formData = new FormData(this);
         const file = formData.get("file");
+        const cpu = formData.get("cpu");
+        const memory = formData.get("memory");
+        const disk = formData.get("disk");
         if (!file)
             return;
         const reader = new FileReader();
         reader.onload = async function () {
             const content = reader.result;
-            const response = await fetch("/upload", {
+            fetch("/upload", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({file: content})
-            })
+                body: JSON.stringify({
+                    file: content,
+                    "cpu": cpu,
+                    "memory": memory,
+                    "disk": disk
+                })
+            }).then(
+                res => res.text()
+            ).then(
+                text => {
+                    alert(text);
+                }
+            )
         };
         reader.readAsText(file, "UTF-8");
     }
