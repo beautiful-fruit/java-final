@@ -68,10 +68,10 @@ setInterval(() => {
                 card = document.createElement("div");
                 card.className = "container-card";
                 card.innerHTML = `
-                    <div class="metric">username: ${data.username}</div>
-                    <div class="metric">cpu: ${data.cpu}</div>
-                    <div class="metric">memory: ${data.memory}</div>
-                    <div class="metric">disk: ${data.disk}</div>
+                    <div class="metric">Username: ${data.username}</div>
+                    <div class="metric">CPU: ${data.cpu} x 0.1</div>
+                    <div class="metric">Memory: ${data.memory} MB</div>
+                    <div class="metric">Disk: ${data.disk} MB</div>
                 `;
                 userStatus.appendChild(card);
                 containers = data.containers;
@@ -89,15 +89,15 @@ setInterval(() => {
                         textContent: "Containers"
                     }));
                 grid = document.createElement("div");
-                grid.classname = "container-grid";
+                grid.className = "container-grid";
                 containers.forEach(container => {
                     card = document.createElement("div");
                     card.className = "container-card";
                     card.innerHTML = `
                         <div class="metric">UUID: ${container.uuid}</div>
-                        <div class="metric">CPU: ${container.cpu}</div>
-                        <div class="metric">Memory: ${container.memory}</div>
-                        <div class="metric">Disk: ${container.disk}</div>
+                        <div class="metric">CPU: ${container.cpu} x 0.1</div>
+                        <div class="metric">Memory: ${container.memory} MB</div>
+                        <div class="metric">Disk: ${container.disk} MB</div>
                         <button onclick="deleteContainer('${container.uuid}')">delete</button>
                     `;
                     grid.appendChild(card);
