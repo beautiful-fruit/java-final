@@ -20,15 +20,17 @@
 </form>
 
 <h1>Register</h1>
-<form method="post" th:action="@{/register}">
+<form id="registerForm" method="post" th:action="@{/register}">
     <label>username:</label>
-    <input name="username"/>
+    <input id="username" name="username"/>
     <br><br>
     <label>password:</label>
     <input name="password"/>
     <br><br>
     <button type="submit">Register</button>
 </form>
+
+<script src="/javascript/login.js"></script>
 
 </body>
 </html>

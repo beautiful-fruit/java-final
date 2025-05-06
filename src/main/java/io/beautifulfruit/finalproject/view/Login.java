@@ -60,6 +60,9 @@ public class Login {
         if (userActiveModel != null)
             return "redirect:/";
 
+        if (!username.matches("[a-zA-Z0-9]+"))
+            return "redirect:/";
+
         userEntity.saveUser(new UserActiveModel(username, password));
 
         return "redirect:/";
