@@ -21,6 +21,11 @@ public class DeploymentEntity {
         this.connection = connection;
     }
 
+    public CompletableFuture<Void> deleteDeployment(DeploymentActiveModel deployment) throws Exception {
+        // TODO: delete the deployment
+        return null;
+    }
+
     public CompletableFuture<Void> saveDeployment(DeploymentActiveModel deployment) throws Exception {
         byte[] key = deployment.uuid.getBytes(StandardCharsets.UTF_8);
 

@@ -41,4 +41,12 @@ public class UserActiveModel {
         // TODO: actually do diff for concurrent access
         superblock.uuids.add(uuid);
     }
+
+    public void removeDeploymentID(String uuid) {
+        superblock.uuids.remove(uuid);
+    }
+
+    public boolean containsDeploymentID(String uuid) {
+        return superblock.uuids.contains(uuid);
+    }
 }

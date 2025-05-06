@@ -44,8 +44,30 @@ public class Delete {
 
         UserActiveModel userActiveModel = userEntity.findUserByName(username).join();
         String uuid = body.get("uuid");
-        // TODO: Delete deployment by UUID
+        if (!userActiveModel.containsDeploymentID(uuid))
+            return "fail";
+
+        userActiveModel.removeDeploymentID(uuid);
+        DeploymentActiveModel deploymentActiveModel =
+                deploymentEntity.findDeploymentByUuid(uuid).join();
+        if (deploymentActiveModel == null)
+            return "fail";
+        try {
+            /*  TODO: There is a possible error during the period
+                between deployment being deployed and user being
+                saved. If the uuid is queried in this period, there
+                will be a uuid doesn't has the respective deployment.
+             */
+            deploymentEntity.deleteDeployment(deploymentActiveModel);
+            userActiveModel.quota.cpu += deploymentActiveModel.cpu;
+            userActiveModel.quota.memory += deploymentActiveModel.memory;
+            userActiveModel.quota.disk += deploymentActiveModel.disk;
+            // This is implemented with non-blocking
+            userEntity.saveUser(userActiveModel);
+        } catch (Exception e) {
+            return "fail";
+        }
         System.out.println("Delete deployment by UUID: " + uuid);
-        return "";
+        return "success";
     }
 }

@@ -45,7 +45,13 @@ function deleteContainer(uuid) {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({"uuid": uuid})
-    })
+    }).then(
+        res => res.text()
+    ).then(
+        text => {
+            alert(text);
+        }
+    )
 }
 
 setInterval(() => {
