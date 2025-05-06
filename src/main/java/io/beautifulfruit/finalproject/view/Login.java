@@ -61,7 +61,7 @@ public class Login {
             return "redirect:/";
 
         if (!username.matches("[a-zA-Z0-9]+"))
-            return "redirect:/";
+            return "badhacker";
 
         userEntity.saveUser(new UserActiveModel(username, password));
 
