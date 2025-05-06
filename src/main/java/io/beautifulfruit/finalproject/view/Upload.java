@@ -1,6 +1,8 @@
 package io.beautifulfruit.finalproject.view;
 import java.util.Map;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
@@ -68,24 +70,36 @@ public class Upload {
     }
 
     @GetMapping("/upload_status")
-    public String getUploadStatus(HttpServletRequest request) {
+    public Map<String, Object> getUploadStatus(HttpServletRequest request) {
         String username = validation.validateTokenFromCookie(request);
 
         if (username == null)
-            return "fail";
+            return null;
         UserActiveModel userActiveModel = userEntity.findUserByName(username).join();
 
         if (userActiveModel == null)
-            return "fail";
+            return null;
 
         ArrayList<String> uuids = userActiveModel.getOwnDeploymentID();
         String dockerCompose = "";
+        Map<String, Object> informations = new HashMap<>();
+        List<Map<String, Object>> containers = new ArrayList<>();
+
         for (String uuid : uuids) {
             DeploymentActiveModel deploymentActiveModel =
                 deploymentEntity.findDeploymentByUuid(uuid).join();
-            dockerCompose += deploymentActiveModel.dockercomposeText + "\n";
+                Map<String, Object> container = new HashMap<>();
+                container.put("uuid", uuid);
+                container.put("cpu", deploymentActiveModel.cpu);
+                container.put("memory", deploymentActiveModel.memory);
+                container.put("disk", deploymentActiveModel.disk);
+                containers.add(container);
         }
-        // TODO: return container message
-        return dockerCompose;
+        informations.put("containers", containers);
+        informations.put("username", userActiveModel.name);
+        informations.put("cpu", userActiveModel.cpu);
+        informations.put("memory", userActiveModel.memory);
+        informations.put("disk", userActiveModel.disk);
+        return informations;
     }
 }
