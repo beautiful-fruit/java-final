@@ -2,7 +2,7 @@ package io.beautifulfruit.finalproject.etcd.deployment;
 
 import io.beautifulfruit.finalproject.etcd.connection.NativeConnectionWrapper;
 import io.beautifulfruit.finalproject.etcd.user.UserEntity;
-import io.beautifulfruit.finalproject.k8s.resource.NativeK8sResources;
+import io.beautifulfruit.finalproject.k8s.resource.K8sResources;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -35,7 +35,7 @@ public class DeploymentEntity {
 
         DeploymentModel deploymentModel = new DeploymentModel(deployment);
 
-        NativeK8sResources resources = new NativeK8sResources(deploymentModel.dockercompose_text);
+        K8sResources resources = new K8sResources(deploymentModel.dockercompose_text);
 
         return userEntity.findUserByName(deploymentModel.ownername).thenCompose(user -> {
             if (!user.quota.hasMoreThan(deploymentModel.quota)) {
