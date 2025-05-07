@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * K8sResources is a class that represents a list of kubernetes resources
@@ -41,6 +42,7 @@ public class NativeK8sResources implements K8sResources {
         // the code above load the kubernetes config from the default location
     }
 
+    UUID uuid = UUID.randomUUID();
     /**
      * A List of kubernetes resources
      * <p>
@@ -57,27 +59,15 @@ public class NativeK8sResources implements K8sResources {
         this.objects = List.of(objects);
     }
 
-    /**
-     * Create a new K8sResources object
-     *
-     * @param dockerCompose content of docker compose file
-     */
     public NativeK8sResources(String dockerCompose) throws Exception {
         Yaml yaml = new Yaml();
         Map<String, Object> data = yaml.load(dockerCompose);
-        UUID uuid = UUID.randomUUID();
-        // parse volumes
         try {
-            if (data.containsKey("volumes")) {
-                Map<String, Object> volumes = (Map<String, Object>) data.get("volumes");
-                this.objects.addAll(NativeK8sResources.parseVolumnes(volumes, uuid));
-            }
-            // parse services
-            if (data.containsKey("services")) {
-                Map<String, Object> services = (Map<String, Object>) data.get("services");
-                this.objects.addAll(NativeK8sResources.parseDeployments(services, uuid));
-                this.objects.addAll(NativeK8sResources.parseServiceIngress(services, uuid));
-            }
+            if (data.containsKey("services")) throw new Exception("No services found");
+            this.objects.add(parseDeployment(data.get("services")));
+            this.objects.add(parseIngress());
+            this.objects.add(parseServices());
+            this.objects.addAll(parsePersistentVolumeClaim(data.get("services")));
         } catch (Exception e) {
             System.err.println("Error parsing docker compose file: " + e.getMessage());
             throw new Exception("Error parsing docker compose file: " + e.getMessage());
@@ -99,66 +89,6 @@ public class NativeK8sResources implements K8sResources {
                     .hostPath(new V1HostPathVolumeSource().path(v.toString())));
             objects.add(pv);
         });
-        return objects;
-    }
-
-    private static List<KubernetesObject> parseDeployments(Map<String, Object> map, UUID uuid) {
-        List<KubernetesObject> objects = new ArrayList<>();
-        map.forEach((k, v) -> {
-            V1Deployment deployment = new V1Deployment();
-            deployment.setApiVersion("apps/v1");
-            deployment.setKind("Deployment");
-            deployment.setMetadata(new V1ObjectMeta().name(uuid.toString() + k));
-            deployment.setSpec(new V1DeploymentSpec()
-                    .replicas(1)
-                    .selector(new V1LabelSelector().matchLabels(Map.of("app", k)))
-                    .template(new V1PodTemplateSpec()
-                            .metadata(new V1ObjectMeta().labels(Map.of("app", k)))
-                            .spec(new V1PodSpec()
-                                    .containers(List.of(new V1Container()
-                                            .name(k)
-                                            .image(v.toString())
-                                            .ports(List.of(new V1ContainerPort().containerPort(80))))))));
-            objects.add(deployment);
-        });
-        return objects;
-    }
-
-    private static List<KubernetesObject> parseServiceIngress(Map<String, Object> map, UUID uuid) {
-        List<KubernetesObject> objects = new ArrayList<>();
-        map.forEach((k, v) -> {
-            V1Service service = new V1Service();
-            service.setApiVersion("v1");
-            service.setKind("Service");
-            service.setMetadata(new V1ObjectMeta().name(uuid.toString() + k));
-            service.setSpec(new V1ServiceSpec()
-                    .type("NodePort")
-                    .selector(Map.of("app", k))
-                    .ports(List.of(new V1ServicePort()
-                            .port(80)
-                            .targetPort(new IntOrString(80))
-                            .nodePort(30000))));
-            objects.add(service);
-        });
-        if (!objects.isEmpty()) {
-            V1Ingress ingress = new V1Ingress();
-            ingress.setApiVersion("networking.k8s.io/v1");
-            ingress.setKind("Ingress");
-            ingress.setMetadata(new V1ObjectMeta().name(uuid.toString() + "ingress"));
-            ingress.setSpec(new V1IngressSpec()
-                    .ingressClassName(ingressClass)
-                    .rules(List.of(new V1IngressRule()
-                            .host("localhost")
-                            .http(new V1HTTPIngressRuleValue()
-                                    .paths(List.of(new V1HTTPIngressPath()
-                                            .path("/")
-                                            .pathType("Prefix")
-                                            .backend(new V1IngressBackend()
-                                                    .service(new V1IngressServiceBackend()
-                                                            .name(uuid.toString() + "service")
-                                                            .port(new V1ServiceBackendPort().number(80))))))))));
-            objects.add(ingress);
-        }
         return objects;
     }
 
@@ -212,6 +142,106 @@ public class NativeK8sResources implements K8sResources {
         return CompletableFuture.completedFuture(null);
     }
 
+    public List<KubernetesObject> parsePersistentVolumeClaim(Object raw) {
+        ComposeServices services = new ComposeServices(raw);
+
+        List<KubernetesObject> objects = new ArrayList<>();
+
+        List<String> mounts = new ArrayList<>();
+        for (ComposeServices.Service service : services.services) {
+            for (ComposeMounts.Mount mount : service.mounts.mounts) {
+                mounts.add(mount.name);
+            }
+        }
+        mounts = mounts.stream().distinct().collect(Collectors.toList());
+        for (String mount : mounts) {
+            V1PersistentVolumeClaim pvc = new V1PersistentVolumeClaim();
+            pvc.setApiVersion("v1");
+            pvc.setKind("PersistentVolumeClaim");
+            pvc.setMetadata(new V1ObjectMeta().name(uuid.toString() + mount));
+            pvc.setSpec(new V1PersistentVolumeClaimSpec()
+                    .accessModes(List.of("ReadWriteOnce"))
+                    .resources(new V1ResourceRequirements()
+                            .requests(Map.of("storage", new Quantity("10Gi"))))
+                    .storageClassName(storageClass));
+            objects.add(pvc);
+        }
+
+        return objects;
+    }
+
+    public KubernetesObject parseDeployment(Object raw) {
+        ComposeServices services = new ComposeServices(raw);
+
+        V1PodSpec spec = new V1PodSpec();
+
+        for (ComposeServices.Service service : services.services) {
+            V1Container container = new V1Container();
+            container.setName(service.name);
+            container.setImage(service.image);
+            if (service.ports.hasPort80()) {
+                container.addPortsItem(new V1ContainerPort().containerPort(80));
+            }
+            for (ComposeMounts.Mount mount : service.mounts.mounts) {
+                container.addVolumeMountsItem(new V1VolumeMount()
+                        .mountPath(mount.mountPath)
+                        .name(mount.name));
+                spec.addVolumesItem(new V1Volume()
+                        .name(mount.name)
+                        .persistentVolumeClaim(new V1PersistentVolumeClaimVolumeSource()
+                                .claimName(uuid.toString() + mount.name)));
+                // collect pvcs
+            }
+            spec.addContainersItem(container);
+        }
+        V1Deployment deployment = new V1Deployment();
+        deployment.setApiVersion("apps/v1");
+        deployment.setKind("Deployment");
+        deployment.setMetadata(new V1ObjectMeta().name(uuid.toString()));
+        deployment.setSpec(new V1DeploymentSpec()
+                .replicas(1)
+                .selector(new V1LabelSelector().matchLabels(Map.of("app", uuid.toString())))
+                .template(new V1PodTemplateSpec()
+                        .metadata(new V1ObjectMeta().name(uuid.toString()))
+                        .spec(spec)));
+
+        return deployment;
+    }
+
+    public KubernetesObject parseIngress() {
+        V1Ingress ingress = new V1Ingress();
+        ingress.setApiVersion("networking.k8s.io/v1");
+        ingress.setKind("Ingress");
+        ingress.setMetadata(new V1ObjectMeta().name(uuid.toString()));
+        ingress.setSpec(new V1IngressSpec()
+                .addRulesItem(new V1IngressRule()
+                        .host(uuid.toString() + ".example.com")
+                        .http(new V1HTTPIngressRuleValue()
+                                .addPathsItem(new V1HTTPIngressPath()
+                                        .path("/")
+                                        .pathType("Prefix")
+                                        .backend(new V1IngressBackend()
+                                                .service(new V1IngressServiceBackend()
+                                                        .name(uuid.toString())
+                                                        .port(new V1ServiceBackendPort().name("web").number(80))))))));
+        return ingress;
+    }
+
+    public KubernetesObject parseServices() {
+        V1Service service = new V1Service();
+        service.setApiVersion("v1");
+        service.setKind("Service");
+        service.setMetadata(new V1ObjectMeta().name(uuid.toString()));
+        service.setSpec(new V1ServiceSpec()
+                .type("ClusterIP")
+                .selector(Map.of("app", uuid.toString()))
+                .ports(List.of(new V1ServicePort()
+                        .name("web")
+                        .port(80)
+                        .targetPort(new IntOrString(80)))));
+        return service;
+    }
+
     public CompletableFuture<Void> apply() {
 
         CompletableFuture<Void> current = CompletableFuture.completedFuture(null);
@@ -263,6 +293,117 @@ public class NativeK8sResources implements K8sResources {
         @Override
         public void onDownloadProgress(long bytesRead, long contentLength, boolean done) {
 
+        }
+    }
+
+    static class ComposeMounts {
+        public List<Mount> mounts = new ArrayList<>();
+
+        public void addMount(Mount mount) {
+            this.mounts.add(mount);
+        }
+
+        static class Mount {
+            public String mountPath;
+            public String name;
+
+            public Mount(Object raw) {
+                if (raw instanceof Map) {
+                    Map<String, Object> map = (Map<String, Object>) raw;
+                    this.mountPath = (String) map.get("mountPath");
+                    this.name = (String) map.get("name");
+                } else if (raw instanceof String) {
+                    String[] parts = ((String) raw).split(":");
+                    if (parts.length == 2) {
+                        this.name = parts[0];
+                        this.mountPath = parts[1];
+                    } else {
+                        throw new RuntimeException("Invalid mount format");
+                    }
+                } else {
+                    throw new RuntimeException("Invalid mount format");
+                }
+            }
+        }
+    }
+
+
+    static class ComposeServices {
+        public List<Service> services = new ArrayList<>();
+
+        public ComposeServices(Object raw) {
+            Map<String, Object> map = (Map<String, Object>) raw;
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                String name = entry.getKey();
+                Service service = new Service(entry.getValue());
+            }
+        }
+
+        private static class Service {
+            public String name;
+            public String image;
+            public ComposePorts ports = new ComposePorts();
+            public ComposeMounts mounts = new ComposeMounts();
+
+            public Service(Object raw) {
+                Map<String, Object> map = (Map<String, Object>) raw;
+                this.name = (String) map.get("name");
+                this.image = (String) map.get("image");
+                if (map.containsKey("ports")) {
+                    this.ports = new ComposePorts(map.get("ports"));
+                }
+                if (map.containsKey("volumes")) {
+                    List<Object> volumes = (List<Object>) map.get("volumes");
+                    for (Object volume : volumes) {
+                        mounts.addMount(new ComposeMounts.Mount(volume));
+                    }
+                }
+            }
+        }
+    }
+
+    static class ComposePorts {
+        ArrayList<Port> ports;
+
+        public ComposePorts() {
+            this.ports = new ArrayList<>();
+        }
+
+        public ComposePorts(Object raw) {
+            List<Object> ports = (List<Object>) raw;
+            this.ports = ports.stream()
+                    .map(Port::new)
+                    .collect(Collectors.toCollection(ArrayList::new));
+        }
+
+        public boolean hasPort80() {
+            for (Port port : ports) {
+                if (port.port == 80) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static class Port {
+            private String protocol;
+            private int port;
+            private IntOrString targetPort;
+
+            public Port(Object raw) {
+                if (raw instanceof Map) {
+                    Map<String, Object> map = (Map<String, Object>) raw;
+                    this.protocol = (String) map.get("protocol");
+                    this.port = (int) map.get("port");
+                    this.targetPort = new IntOrString((String) map.get("targetPort"));
+                } else if (raw instanceof String) {
+                    this.protocol = "TCP";
+                    this.port = Integer.parseInt((String) raw);
+                    this.targetPort = new IntOrString(this.port);
+                } else {
+                    throw new RuntimeException("Invalid port format");
+                }
+            }
         }
     }
 }
