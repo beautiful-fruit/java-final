@@ -1,23 +1,23 @@
 package io.beautifulfruit.finalproject.view;
 
-import java.security.Key;
-import java.util.Arrays;
-import java.util.Date;
-
-import org.springframework.stereotype.Component;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.stereotype.Component;
+
+import java.security.Key;
+import java.util.Arrays;
+import java.util.Date;
 
 @Component
 public class Validation {
     private final Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     private final long EXPIRATION = 3600000;
+
     public String validateTokenFromCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) return null;

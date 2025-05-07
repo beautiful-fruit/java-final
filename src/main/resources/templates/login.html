@@ -1,36 +1,37 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <meta charset="UTF-8">
     <title>MainPage</title>
-    <link rel="stylesheet" href="/css/style.css"/>
-</head>
-<body>
+    <link href="/css/style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <h1>Login</h1>
+    <form method="post" th:action="@{/login}">
+      <label>username:</label>
+      <input name="username" />
+      <br>
+      <br>
+      <label>password:</label>
+      <input name="password" />
+      <br>
+      <br>
+      <button type="submit">Login</button>
+    </form>
 
+    <h1>Register</h1>
+    <form id="registerForm" method="post" th:action="@{/register}">
+      <label>username:</label>
+      <input id="username" name="username" />
+      <br>
+      <br>
+      <label>password:</label>
+      <input name="password" />
+      <br>
+      <br>
+      <button type="submit">Register</button>
+    </form>
 
-<h1>Login</h1>
-<form method="post" th:action="@{/login}">
-    <label>username:</label>
-    <input name="username"/>
-    <br><br>
-    <label>password:</label>
-    <input name="password"/>
-    <br><br>
-    <button type="submit">Login</button>
-</form>
-
-<h1>Register</h1>
-<form id="registerForm" method="post" th:action="@{/register}">
-    <label>username:</label>
-    <input id="username" name="username"/>
-    <br><br>
-    <label>password:</label>
-    <input name="password"/>
-    <br><br>
-    <button type="submit">Register</button>
-</form>
-
-<script src="/javascript/login.js"></script>
-
-</body>
+    <script src="/javascript/login.js"></script>
+  </body>
 </html>

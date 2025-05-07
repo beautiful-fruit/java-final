@@ -1,17 +1,15 @@
 package io.beautifulfruit.finalproject.view;
 
 
-
+import io.beautifulfruit.finalproject.etcd.user.UserActiveModel;
+import io.beautifulfruit.finalproject.etcd.user.UserEntity;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import io.beautifulfruit.finalproject.etcd.user.UserActiveModel;
-import io.beautifulfruit.finalproject.etcd.user.UserEntity;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 
 
 @Controller
@@ -26,9 +24,9 @@ public class Login {
     // Display the form for addition
     @PostMapping("/login")
     public String login(
-        @RequestParam("username") String username,
-        @RequestParam("password") String password,
-        HttpServletResponse response
+            @RequestParam("username") String username,
+            @RequestParam("password") String password,
+            HttpServletResponse response
     ) {
         UserActiveModel userActiveModel = userEntity.findUserByName(username).join();
 
@@ -51,9 +49,9 @@ public class Login {
 
     @PostMapping("/register")
     public String register(
-        @RequestParam("username") String username,
-        @RequestParam("password") String password,
-        HttpServletResponse response
+            @RequestParam("username") String username,
+            @RequestParam("password") String password,
+            HttpServletResponse response
     ) {
         UserActiveModel userActiveModel = userEntity.findUserByName(username).join();
 

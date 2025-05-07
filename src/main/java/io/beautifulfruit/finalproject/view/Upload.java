@@ -1,9 +1,10 @@
 package io.beautifulfruit.finalproject.view;
-import java.util.Map;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashMap;
 
+import io.beautifulfruit.finalproject.etcd.deployment.DeploymentActiveModel;
+import io.beautifulfruit.finalproject.etcd.deployment.DeploymentEntity;
+import io.beautifulfruit.finalproject.etcd.user.UserActiveModel;
+import io.beautifulfruit.finalproject.etcd.user.UserEntity;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,12 +12,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.beautifulfruit.finalproject.etcd.deployment.DeploymentActiveModel;
-import io.beautifulfruit.finalproject.etcd.deployment.DeploymentEntity;
-import io.beautifulfruit.finalproject.etcd.user.UserActiveModel;
-import io.beautifulfruit.finalproject.etcd.user.UserEntity;
-import jakarta.servlet.http.HttpServletRequest;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -35,10 +34,10 @@ public class Upload {
 
     @PostMapping("/upload")
     public String handleUpload(
-        @RequestBody Map<String, String> body,
-        Model model,
-        HttpServletRequest request
-        ){
+            @RequestBody Map<String, String> body,
+            Model model,
+            HttpServletRequest request
+    ) {
         String username = validation.validateTokenFromCookie(request);
 
         if (username == null)
@@ -62,16 +61,16 @@ public class Upload {
             return "fail";
         }
         if (cpu > userActiveModel.quota.cpu
-            || memory > userActiveModel.quota.memory
-            || disk > userActiveModel.quota.disk
-            ) {
+                || memory > userActiveModel.quota.memory
+                || disk > userActiveModel.quota.disk
+        ) {
             return "Out of resource";
         }
         userActiveModel.quota.cpu -= cpu;
         userActiveModel.quota.memory -= memory;
         userActiveModel.quota.disk -= disk;
         DeploymentActiveModel deploymentActiveModel =
-            new DeploymentActiveModel(file, userActiveModel.name, cpu, memory, disk);
+                new DeploymentActiveModel(file, userActiveModel.name);
         try {
             deploymentEntity.updateDeployment(deploymentActiveModel).join();
             userActiveModel.addDeploymentID(deploymentActiveModel.uuid);
@@ -104,13 +103,13 @@ public class Upload {
 
         for (String uuid : uuids) {
             DeploymentActiveModel deploymentActiveModel =
-                deploymentEntity.findDeploymentByUuid(uuid).join();
-                Map<String, Object> container = new HashMap<>();
-                container.put("uuid", uuid);
-                container.put("cpu", deploymentActiveModel.cpu);
-                container.put("memory", deploymentActiveModel.memory);
-                container.put("disk", deploymentActiveModel.disk);
-                containers.add(container);
+                    deploymentEntity.findDeploymentByUuid(uuid).join();
+            Map<String, Object> container = new HashMap<>();
+            container.put("uuid", uuid);
+            container.put("cpu", deploymentActiveModel.quota.cpu);
+            container.put("memory", deploymentActiveModel.quota.memory);
+            container.put("disk", deploymentActiveModel.quota.disk);
+            containers.add(container);
         }
         informations.put("containers", containers);
         informations.put("username", userActiveModel.name);
