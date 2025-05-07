@@ -59,6 +59,7 @@ public class K8sResources {
     }
 
     UUID uuid = UUID.randomUUID();
+    String serviceName;
     /**
      * A List of kubernetes resources
      * <p>
@@ -78,6 +79,7 @@ public class K8sResources {
     public K8sResources(String dockerCompose) throws Exception {
         Yaml yaml = new Yaml();
         Map<String, Object> data = yaml.load(dockerCompose);
+        this.serviceName = "autogen-service-" + uuid.toString() + "-name";
         try {
             if (!data.containsKey("services")) throw new Exception("No services found");
             this.objects.add(parseDeployment(data.get("services")));
@@ -120,7 +122,6 @@ public class K8sResources {
             networking.createNamespacedIngress(namespace, (V1Ingress) object).executeAsync(callback);
             return callback.future;
         }
-
 
         if (object instanceof V1Pod) {
             CoreAPICallback<V1Pod> callback = new CoreAPICallback<>();
@@ -202,19 +203,18 @@ public class K8sResources {
             container.setName(service.name);
             container.setImage(service.image);
             if (service.ports.hasPort80()) {
-                container.addPortsItem(new V1ContainerPort().containerPort(80));
+                container = container.addPortsItem(new V1ContainerPort().containerPort(80));
             }
             for (ComposeMounts.Mount mount : service.mounts.mounts) {
-                container.addVolumeMountsItem(new V1VolumeMount()
+                container = container.addVolumeMountsItem(new V1VolumeMount()
                         .mountPath(mount.mountPath)
                         .name(mount.name));
-                spec.addVolumesItem(new V1Volume()
+                spec = spec.addVolumesItem(new V1Volume()
                         .name(mount.name)
                         .persistentVolumeClaim(new V1PersistentVolumeClaimVolumeSource()
                                 .claimName(uuid.toString() + mount.name)));
-                // collect pvcs
             }
-            spec.addContainersItem(container);
+            spec = spec.addContainersItem(container);
         }
         V1Deployment deployment = new V1Deployment();
         deployment.setApiVersion("apps/v1");
@@ -224,7 +224,7 @@ public class K8sResources {
                 .replicas(1)
                 .selector(new V1LabelSelector().matchLabels(Map.of("app", uuid.toString())))
                 .template(new V1PodTemplateSpec()
-                        .metadata(new V1ObjectMeta().name(uuid.toString()))
+                        .metadata(new V1ObjectMeta().labels(Map.of("app", uuid.toString())))
                         .spec(spec)));
 
         return deployment;
@@ -244,8 +244,8 @@ public class K8sResources {
                                         .pathType("Prefix")
                                         .backend(new V1IngressBackend()
                                                 .service(new V1IngressServiceBackend()
-                                                        .name(uuid.toString())
-                                                        .port(new V1ServiceBackendPort().name("web").number(80))))))));
+                                                        .name(serviceName)
+                                                        .port(new V1ServiceBackendPort().number(80))))))));
         return ingress;
     }
 
@@ -253,12 +253,11 @@ public class K8sResources {
         V1Service service = new V1Service();
         service.setApiVersion("v1");
         service.setKind("Service");
-        service.setMetadata(new V1ObjectMeta().name(uuid.toString()));
+        service.setMetadata(new V1ObjectMeta().name(serviceName));
         service.setSpec(new V1ServiceSpec()
                 .type("ClusterIP")
                 .selector(Map.of("app", uuid.toString()))
                 .ports(List.of(new V1ServicePort()
-                        .name("web")
                         .port(80)
                         .targetPort(new IntOrString(80)))));
         return service;
@@ -357,7 +356,8 @@ public class K8sResources {
             Map<String, Object> map = (Map<String, Object>) raw;
             for (Map.Entry<String, Object> entry : map.entrySet()) {
                 String name = entry.getKey();
-                Service service = new Service(entry.getValue());
+                Service service = new Service(name, entry.getValue());
+                services.add(service);
             }
         }
 
@@ -367,9 +367,9 @@ public class K8sResources {
             public ComposePorts ports = new ComposePorts();
             public ComposeMounts mounts = new ComposeMounts();
 
-            public Service(Object raw) {
+            public Service(String name, Object raw) {
                 Map<String, Object> map = (Map<String, Object>) raw;
-                this.name = (String) map.get("name");
+                this.name = name;
                 this.image = (String) map.get("image");
                 if (map.containsKey("ports")) {
                     this.ports = new ComposePorts(map.get("ports"));

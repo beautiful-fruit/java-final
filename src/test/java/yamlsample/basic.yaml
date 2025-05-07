@@ -1,0 +1,3 @@
+services:
+  hello:
+    image: docker.io/library/hello-world

@@ -1,0 +1,5 @@
+services:
+  hello:
+    image: docker.io/library/hello-world
+    volumes:
+      - tmp-storage:/tmp

@@ -1,0 +1,7 @@
+services:
+  main:
+    image: docker.io/library/hello-world
+    depends_on:
+      - postgres
+  postgres:
+    image: docker.io/library/postgres
