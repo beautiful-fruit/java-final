@@ -201,6 +201,17 @@ public class NativeK8sResources implements K8sResources {
         }
     }
 
+    /**
+     * Delete the objects in the list, with dependency in mind
+     *
+     * @param objects The objects to delete
+     * @return A CompletableFuture that will be completed when the objects are deleted
+     */
+    private static CompletableFuture<Void> maybeDeleteObjects(List<KubernetesObject> objects) {
+        // TODO: implement this
+        return CompletableFuture.completedFuture(null);
+    }
+
     public CompletableFuture<Void> apply() {
 
         CompletableFuture<Void> current = CompletableFuture.completedFuture(null);
@@ -219,6 +230,15 @@ public class NativeK8sResources implements K8sResources {
         }
 
         return current;
+    }
+
+    /**
+     * Delete the objects in the cluster
+     *
+     * @return A CompletableFuture that will be completed when the objects are deleted
+     */
+    public CompletableFuture<Void> delete() {
+        return maybeDeleteObjects(objects);
     }
 
     static class CoreAPICallback<T extends KubernetesObject> implements ApiCallback<T> {

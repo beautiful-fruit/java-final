@@ -1,10 +1,9 @@
 package io.beautifulfruit.finalproject.etcd.user;
 
 import com.google.gson.Gson;
+import io.beautifulfruit.finalproject.k8s.Quota;
 
 import java.nio.charset.StandardCharsets;
-
-import io.beautifulfruit.finalproject.k8s.Quota;
 
 public class UserModel {
     private static final Gson gson = new Gson();

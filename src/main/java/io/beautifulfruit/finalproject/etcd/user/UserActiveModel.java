@@ -2,7 +2,6 @@ package io.beautifulfruit.finalproject.etcd.user;
 
 import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
-
 import io.beautifulfruit.finalproject.k8s.Quota;
 
 import java.util.ArrayList;

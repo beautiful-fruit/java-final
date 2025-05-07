@@ -1,6 +1,7 @@
 package io.beautifulfruit.finalproject.etcd.deployment;
 
 import com.google.gson.Gson;
+import io.beautifulfruit.finalproject.k8s.Quota;
 
 import java.nio.charset.StandardCharsets;
 
@@ -10,9 +11,8 @@ public class DeploymentModel {
     public final String deployment_uuid;
     public final String dockercompose_text;
     public final String ownername;
-    public int cpu; // e.g., 0.1 CPU represented as some integer
-    public int memory; // MB
-    public int disk; // MB
+    public final Quota quota;
+    public String displayStatus;
 
     public DeploymentModel(byte[] json) {
         DeploymentModel model = gson.fromJson(new String(json, StandardCharsets.UTF_8), DeploymentModel.class);
@@ -20,18 +20,16 @@ public class DeploymentModel {
         this.deployment_uuid = model.deployment_uuid;
         this.dockercompose_text = model.dockercompose_text;
         this.ownername = model.ownername;
-        this.cpu = model.cpu;
-        this.memory = model.memory;
-        this.disk = model.disk;
+        this.quota = model.quota;
+        this.displayStatus = model.displayStatus;
     }
 
     public DeploymentModel(DeploymentActiveModel deployment) {
         this.deployment_uuid = deployment.uuid;
         this.dockercompose_text = deployment.dockercomposeText;
         this.ownername = deployment.ownername;
-        this.cpu = deployment.cpu;
-        this.memory = deployment.memory;
-        this.disk = deployment.disk;
+        this.quota = deployment.quota;
+        this.displayStatus = deployment.displayStatus;
     }
 
     public String toJson() {

@@ -1,6 +1,7 @@
 package io.beautifulfruit.finalproject.etcd.deployment;
 
 import io.beautifulfruit.finalproject.etcd.connection.NativeConnectionWrapper;
+import io.beautifulfruit.finalproject.etcd.user.UserEntity;
 import io.beautifulfruit.finalproject.k8s.resource.NativeK8sResources;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,9 @@ public class DeploymentEntity {
     private final NativeConnectionWrapper connection;
 
     @Autowired
+    private UserEntity userEntity;
+
+    @Autowired
     public DeploymentEntity(NativeConnectionWrapper connection) {
         this.connection = connection;
     }
@@ -30,17 +34,25 @@ public class DeploymentEntity {
         byte[] key = deployment.uuid.getBytes(StandardCharsets.UTF_8);
 
         DeploymentModel deploymentModel = new DeploymentModel(deployment);
-        byte[] value = deploymentModel.toJson().getBytes(StandardCharsets.UTF_8);
 
         NativeK8sResources resources = new NativeK8sResources(deploymentModel.dockercompose_text);
 
-        // WARNING: directly applying the resources to the cluster cause throw an exception
-        // 1. resource already exists
-        // 2. cluster is not ready
-        // TODO: display error to user
-        resources.apply();
+        return userEntity.findUserByName(deploymentModel.ownername).thenCompose(user -> {
+            if (!user.quota.hasMoreThan(deploymentModel.quota)) {
+                deploymentModel.displayStatus = "Quota exceeded";
+            } else {
+                try {
+                    resources.apply();
+                } catch (Exception e) {
+                    System.out.println("Error applying resources: " + e.getMessage());
+                    deploymentModel.displayStatus = "Error";
+                }
+            }
 
-        return connection.store(DEPLOYMENT_PREFIX, key, value);
+            byte[] value = deploymentModel.toJson().getBytes(StandardCharsets.UTF_8);
+
+            return connection.store(DEPLOYMENT_PREFIX, key, value);
+        });
     }
 
     public CompletableFuture<Void> updateDeployment(DeploymentActiveModel deployment) throws Exception {
