@@ -22,22 +22,22 @@ kubeconfig:
 apiVersion: v1
 clusters:
   - cluster:
-      server: http://localhost:16443
-    name: k3s
+      certificate-authority-data: aaa
+      server: https://127.0.0.1:6443
+    name: default
 contexts:
   - context:
-      cluster: k3s
-      namespace: default
-      user: admin
+      cluster: default
+      user: default
     name: default
 current-context: default
 kind: Config
 preferences: {}
 users:
-  - name: admin
+  - name: default
     user:
-      client-certificate: /tmp/kubeconfig-devfinal/kubeconfig/client.crt
-      client-key: /tmp/kubeconfig-devfinal/kubeconfig/client.key
+      client-certificate-data: bbb
+      client-key-data: ccc
 ```
 
 ### run the unit test
