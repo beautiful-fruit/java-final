@@ -1,16 +1,23 @@
-package io.beautifulfruit.finalproject.k8s.resource;
+package io.beautifulfruit.finalproject.k8s;
 
 import io.kubernetes.client.common.KubernetesObject;
 import io.kubernetes.client.custom.IntOrString;
 import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.openapi.ApiCallback;
+import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
+import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.AppsV1Api;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.apis.NetworkingV1Api;
 import io.kubernetes.client.openapi.models.*;
+import io.kubernetes.client.util.ClientBuilder;
+import io.kubernetes.client.util.Config;
+import io.kubernetes.client.util.KubeConfig;
 import org.yaml.snakeyaml.Yaml;
 
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,10 +43,19 @@ public class K8sResources {
     private static final String storageClass = "standard";
 
     static {
-        // TODO: load kubernetes config
-        // ApiClient client = Config.defaultClient();
-        // Configuration.setDefaultApiClient(client);
-        // the code above load the kubernetes config from the default location
+        String customConfigPath = System.getenv("KUBECONFIG");
+        ApiClient client;
+
+        try {
+            if (customConfigPath != null) {
+                client = ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(customConfigPath))).build();
+            } else {
+                client = Config.defaultClient();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load kubeconfig", e);
+        }
+        Configuration.setDefaultApiClient(client);
     }
 
     UUID uuid = UUID.randomUUID();

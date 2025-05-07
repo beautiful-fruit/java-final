@@ -2,7 +2,7 @@ package io.beautifulfruit.finalproject.etcd.deployment;
 
 import io.beautifulfruit.finalproject.etcd.connection.NativeConnectionWrapper;
 import io.beautifulfruit.finalproject.etcd.user.UserEntity;
-import io.beautifulfruit.finalproject.k8s.resource.K8sResources;
+import io.beautifulfruit.finalproject.k8s.K8sResources;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

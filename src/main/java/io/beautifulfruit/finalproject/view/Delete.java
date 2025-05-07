@@ -54,9 +54,9 @@ public class Delete {
                 will be a uuid doesn't has the respective deployment.
              */
             deploymentEntity.deleteDeployment(deploymentActiveModel);
-            userActiveModel.quota.cpu += deploymentActiveModel.cpu;
-            userActiveModel.quota.memory += deploymentActiveModel.memory;
-            userActiveModel.quota.disk += deploymentActiveModel.disk;
+            userActiveModel.quota.cpu += deploymentActiveModel.quota.cpu;
+            userActiveModel.quota.memory += deploymentActiveModel.quota.memory;
+            userActiveModel.quota.disk += deploymentActiveModel.quota.disk;
             // This is implemented with non-blocking
             userEntity.saveUser(userActiveModel);
         } catch (Exception e) {
