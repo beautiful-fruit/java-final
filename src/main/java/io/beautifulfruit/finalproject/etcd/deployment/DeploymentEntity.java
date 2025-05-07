@@ -38,16 +38,16 @@ public class DeploymentEntity {
         K8sResources resources = new K8sResources(deploymentModel.dockercompose_text);
 
         return userEntity.findUserByName(deploymentModel.ownername).thenCompose(user -> {
-            if (!user.quota.hasMoreThan(deploymentModel.quota)) {
-                deploymentModel.displayStatus = "Quota exceeded";
-            } else {
-                try {
-                    resources.apply();
-                } catch (Exception e) {
-                    System.out.println("Error applying resources: " + e.getMessage());
-                    deploymentModel.displayStatus = "Error";
-                }
+//            if (!user.quota.hasMoreThan(deploymentModel.quota)) {
+//                deploymentModel.displayStatus = "Quota exceeded";
+//            } else {
+            try {
+                resources.apply();
+            } catch (Exception e) {
+                System.out.println("Error applying resources: " + e.getMessage());
+                deploymentModel.displayStatus = "Error";
             }
+//            }
 
             byte[] value = deploymentModel.toJson().getBytes(StandardCharsets.UTF_8);
 

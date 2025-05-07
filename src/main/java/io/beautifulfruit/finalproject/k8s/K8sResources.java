@@ -79,18 +79,21 @@ public class K8sResources {
         Yaml yaml = new Yaml();
         Map<String, Object> data = yaml.load(dockerCompose);
         try {
-            if (data.containsKey("services")) throw new Exception("No services found");
+            if (!data.containsKey("services")) throw new Exception("No services found");
             this.objects.add(parseDeployment(data.get("services")));
             this.objects.add(parseIngress());
             this.objects.add(parseServices());
+            this.objects.addAll(parseVolumnes(data.get("services"), uuid));
             this.objects.addAll(parsePersistentVolumeClaim(data.get("services")));
         } catch (Exception e) {
             System.err.println("Error parsing docker compose file: " + e.getMessage());
             throw new Exception("Error parsing docker compose file: " + e.getMessage());
         }
+        System.out.println("Parsed " + data.size() + " objects");
     }
 
-    private static List<KubernetesObject> parseVolumnes(Map<String, Object> map, UUID uuid) {
+    private static List<KubernetesObject> parseVolumnes(Object raw, UUID uuid) {
+        Map<String, Object> map = (Map<String, Object>) raw;
         List<KubernetesObject> objects = new ArrayList<>();
         map.forEach((k, v) -> {
             V1PersistentVolume pv = new V1PersistentVolume();
@@ -109,38 +112,41 @@ public class K8sResources {
     }
 
     private static CompletableFuture<Void> applySingleObject(KubernetesObject object) throws ApiException {
-        CoreV1Api core = new CoreV1Api();
         NetworkingV1Api networking = new NetworkingV1Api();
+        CoreV1Api core = new CoreV1Api();
+
+        if (object instanceof V1Ingress) {
+            CoreAPICallback<V1Ingress> callback = new CoreAPICallback<>();
+            networking.createNamespacedIngress(namespace, (V1Ingress) object).executeAsync(callback);
+            return callback.future;
+        }
+
 
         if (object instanceof V1Pod) {
             CoreAPICallback<V1Pod> callback = new CoreAPICallback<>();
-            core.createNamespacedPodAsync(namespace, (V1Pod) object, null, null, null, null, callback);
+            core.createNamespacedPod(namespace, (V1Pod) object).executeAsync(callback);
             return callback.future;
         }
         if (object instanceof V1PersistentVolume) {
             CoreAPICallback<V1PersistentVolume> callback = new CoreAPICallback<>();
-            core.createPersistentVolumeAsync((V1PersistentVolume) object, null, null, null, null, callback);
+            core.createPersistentVolume((V1PersistentVolume) object).executeAsync(callback);
             return callback.future;
         }
         if (object instanceof V1PersistentVolumeClaim) {
             CoreAPICallback<V1PersistentVolumeClaim> callback = new CoreAPICallback<>();
-            core.createNamespacedPersistentVolumeClaimAsync(namespace, (V1PersistentVolumeClaim) object, null, null, null, null, callback);
+            core.createNamespacedPersistentVolumeClaim(namespace, (V1PersistentVolumeClaim) object).executeAsync(callback);
             return callback.future;
         }
-        if (object instanceof V1Ingress) {
-            CoreAPICallback<V1Ingress> callback = new CoreAPICallback<>();
-            networking.createNamespacedIngressAsync(namespace, (V1Ingress) object, null, null, null, null, callback);
-            return callback.future;
-        }
+
         if (object instanceof V1Deployment) {
             AppsV1Api apps = new AppsV1Api();
             CoreAPICallback<V1Deployment> callback = new CoreAPICallback<>();
-            apps.createNamespacedDeploymentAsync(namespace, (V1Deployment) object, null, null, null, null, callback);
+            apps.createNamespacedDeployment(namespace, (V1Deployment) object).executeAsync(callback);
             return callback.future;
         }
         if (object instanceof V1Service) {
             CoreAPICallback<V1Service> callback = new CoreAPICallback<>();
-            core.createNamespacedServiceAsync(namespace, (V1Service) object, null, null, null, null, callback);
+            core.createNamespacedService(namespace, (V1Service) object).executeAsync(callback);
             return callback.future;
         } else {
             throw new RuntimeException("Pods not supported yet");
@@ -177,7 +183,7 @@ public class K8sResources {
             pvc.setMetadata(new V1ObjectMeta().name(uuid.toString() + mount));
             pvc.setSpec(new V1PersistentVolumeClaimSpec()
                     .accessModes(List.of("ReadWriteOnce"))
-                    .resources(new V1ResourceRequirements()
+                    .resources(new V1VolumeResourceRequirements()
                             .requests(Map.of("storage", new Quantity("10Gi"))))
                     .storageClassName(storageClass));
             objects.add(pvc);
