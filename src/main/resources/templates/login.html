@@ -3,35 +3,164 @@
   <head>
     <meta charset="UTF-8">
     <title>MainPage</title>
-    <link href="/css/style.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
   <body>
-    <h1>Login</h1>
-    <form method="post" th:action="@{/login}">
-      <label>username:</label>
-      <input name="username" />
-      <br>
-      <br>
-      <label>password:</label>
-      <input name="password" />
-      <br>
-      <br>
-      <button type="submit">Login</button>
-    </form>
+    <div
+      class="flex flex-col items-center justify-center min-h-screen bg-gray-100"
+    >
+      <div
+        class="w-full max-w-sm p-8 space-y-6 bg-white rounded-lg shadow-md"
+        id="login"
+      >
+        <h2 class="text-2xl font-semibold text-center text-gray-800">
+          Welcome Back!
+        </h2>
 
-    <h1>Register</h1>
-    <form id="registerForm" method="post" th:action="@{/register}">
-      <label>username:</label>
-      <input id="username" name="username" />
-      <br>
-      <br>
-      <label>password:</label>
-      <input name="password" />
-      <br>
-      <br>
-      <button type="submit">Register</button>
-    </form>
+        <form method="post" th:action="@{/login}" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700"
+            >username:</label>
+            <input
+              type="text"
+              name="username"
+              required
+              class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
 
-    <script src="/javascript/login.js"></script>
+          <div>
+            <label class="block text-sm font-medium text-gray-700"
+            >password:</label>
+            <input
+              type="password"
+              name="password"
+              required
+              class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+
+          <div class="pt-2">
+            <button
+              type="submit"
+              class="w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Login
+            </button>
+          </div>
+        </form>
+
+        <div
+          class="flex items-center justify-center pt-4 space-x-2 text-sm text-gray-600"
+        >
+          <span>Don't have an account?</span>
+          <button
+            type="button"
+            class="font-medium text-blue-600 hover:text-blue-500 focus:outline-none"
+            onclick="switchRegistration()"
+          >
+            Register Here
+          </button>
+        </div>
+      </div>
+      <div
+        class="w-full max-w-sm p-8 space-y-6 bg-white rounded-lg shadow-md hidden"
+        id="registration"
+      >
+        <h2 class="text-2xl font-semibold text-center text-gray-800">
+          Create Your Account
+        </h2>
+
+        <form
+          th:action="@{/register}"
+          method="POST"
+          onsubmit="return validateRegister()"
+        >
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700"
+            >Username</label>
+            <input
+              type="text"
+              name="username"
+              required
+              class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700"
+            >Password</label>
+            <input
+              id="reg-password-1"
+              type="password"
+              name="password"
+              required
+              class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700"
+            >Confirm Password</label>
+            <input
+              id="reg-password-2"
+              type="password"
+              name="confirmPassword"
+              required
+              class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+
+          <div>
+            <button
+              type="submit"
+              class="w-full px-4 py-2 text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            >
+              Register
+            </button>
+          </div>
+        </form>
+
+        <div
+          class="flex items-center justify-center pt-4 space-x-2 text-sm text-gray-600"
+        >
+          <span>Already have an account?</span>
+          <button
+            type="button"
+            id="showLoginButton"
+            class="font-medium text-blue-600 hover:text-blue-500 focus:outline-none"
+            onclick="switchLogin()"
+          >
+            Login Here
+          </button>
+        </div>
+      </div>
+    </div>
+    <script>
+      function switchLogin() {
+        document.getElementById("login").classList.remove("hidden");
+        document.getElementById("registration").classList.add("hidden");
+      }
+      function switchRegistration() {
+        document.getElementById("login").classList.add("hidden");
+        document.getElementById("registration").classList.remove(
+          "hidden",
+        );
+      }
+      function validateRegister() {
+        const password1 =
+          document.getElementById("reg-password-1").value;
+        const password2 =
+          document.getElementById("reg-password-2").value;
+
+        if (password1 !== password2) {
+          alert("Passwords do not match!");
+          document.getElementById("reg-password-2").value = "";
+          document.getElementById("reg-password-2").focus();
+        }
+        return password1 === password2;
+      }
+    </script>
   </body>
 </html>
