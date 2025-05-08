@@ -1,237 +1,337 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <head>
+    <meta charset="UTF-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>MyCloud Web UI</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script async src="https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs/loader.js"></script>
+    <script
+      async
+      src="https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs/loader.js"
+    ></script>
 
     <style>
-        .tab {
-            @apply px-3 py-2 rounded hover:bg-gray-100 cursor-pointer;
-        }
+      .tab {
+        @apply px-3 py-2 rounded hover:bg-gray-100 cursor-pointer;
+      }
 
-        .tab-active {
-            @apply bg-blue-600 text-white shadow-lg border-b-2 border-transparent border-blue-600 font-semibold;
-        }
+      .tab-active {
+        @apply bg-blue-600 text-white shadow-lg border-b-2 border-transparent
+          border-blue-600 font-semibold;
+      }
 
-        .fade-in {
-            animation: fadeIn 0.5s ease forwards;
-        }
+      .fade-in {
+        animation: fadeIn 0.5s ease forwards;
+      }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
         }
+        to {
+          opacity: 1;
+        }
+      }
 
-        body {
-            font-family: 'Inter', sans-serif;
-        }
+      body {
+        font-family: "Inter", sans-serif;
+      }
     </style>
-</head>
+  </head>
 
-<body class="bg-gray-100 min-h-screen flex flex-col">
-
-<nav class="flex justify-between items-center bg-white shadow px-4 py-3">
-    <div class="text-xl font-bold text-blue-600">MyCloud Console</div>
-    <div class="space-x-4 hidden md:flex">
-        <button class="tab tab-active fade-in" id="nav-dashboard">Dashboard</button>
+  <body class="bg-gray-100 min-h-screen flex flex-col">
+    <nav class="flex justify-between items-center bg-white shadow px-4 py-3">
+      <div class="text-xl font-bold text-blue-600">MyCloud Console</div>
+      <div class="space-x-4 hidden md:flex">
+        <button class="tab tab-active fade-in" id="nav-dashboard">
+          Dashboard
+        </button>
         <button class="tab fade-in" id="nav-add-service">Add Service</button>
         <button class="tab fade-in" id="nav-profile">Profile</button>
-    </div>
-</nav>
+      </div>
+    </nav>
 
-<main class="flex-grow container mx-auto p-4">
-
-    <section class="hidden fade-in" id="dashboard">
-        <h2 class="text-2xl font-semibold mb-4 text-gray-700">Running Services</h2>
+    <main class="flex-grow container mx-auto p-4">
+      <section class="hidden fade-in" id="dashboard">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-700">
+          Running Services
+        </h2>
         <div class="overflow-x-auto rounded shadow bg-white fade-in">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50 text-left uppercase text-xs font-semibold text-gray-600 tracking-wider">
-                <tr>
-                    <th class="px-4 py-3">UUID</th>
-                    <th class="px-4 py-3">Display Name</th>
-                    <th class="px-4 py-3">CPU Usage (%)</th>
-                    <th class="px-4 py-3">Memory (MiB)</th>
-                    <th class="px-4 py-3">Disk Space (GiB)</th>
-                </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
+          <table
+            class="min-w-full divide-y divide-gray-200"
+            id="container-status"
+          >
+            <thead
+              class="bg-gray-50 text-left uppercase text-xs font-semibold text-gray-600 tracking-wider"
+            >
+              <tr>
+                <th class="px-4 py-3">UUID</th>
+                <th class="px-4 py-3">Display Name</th>
+                <th class="px-4 py-3">CPU Usage (%)</th>
+                <th class="px-4 py-3">Memory (MiB)</th>
+                <th class="px-4 py-3">Disk Space (GiB)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr
+                class="hover:bg-blue-50 transition duration-150 cursor-pointer border-b hover:border-t hover:shadow-inner"
+              >
+                <td class="px-4 py-3">c9a8b7d6-e5f4-4hij-k2mn-o3pqrstuvwx</td>
+                <td class="px-4 py-3">WebServer1</td>
+                <td class="px-4 py-3">25%</td>
+                <td class="px-4 py-3">500 MiB</td>
+                <td class="px-4 py-3">1 GiB</td>
+              </tr>
 
-                <tr class="hover:bg-blue-50 transition duration-150 cursor-pointer border-b hover:border-t hover:shadow-inner border-transparent">
-                    <td class="px-4 py-3">c9a8b7d6-e5f4-4hij-k2mn-o3pqrstuvwx</td>
-                    <td class="px-4 py-3">WebServer1</td>
-                    <td class="px-4 py-3">25%</td>
-                    <td class="px-4 py-3">500 MiB</td>
-                    <td class="px-4 py-3">1 GiB</td>
-                </tr>
-
-                <tr class="hover:bg-blue-50 transition duration-150 cursor-pointer border-b hover:border-t hover:shadow-inner">
-                    <td class="px-4 py-3">f2e3d4c5-b6a7-89i0-jk1l-mnopqrstuvwx</td>
-                    <td class="px-4 py-3">DatabaseServerA</td>
-                    <td class="px-4 py-3">12%</td>
-                    <td class="px-4 py-3">750 MiB</td>
-                    <td class="px-4 py-3">2 GiB</td>
-                </tr>
-
-                </tbody>
-            </table>
+              <tr
+                class="hover:bg-blue-50 transition duration-150 cursor-pointer border-b hover:border-t hover:shadow-inner"
+              >
+                <td class="px-4 py-3">f2e3d4c5-b6a7-89i0-jk1l-mnopqrstuvwx</td>
+                <td class="px-4 py-3">DatabaseServerA</td>
+                <td class="px-4 py-3">12%</td>
+                <td class="px-4 py-3">750 MiB</td>
+                <td class="px-4 py-3">2 GiB</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-    </section>
+      </section>
 
-    <section class="fade-in" id="add-service">
-        <h2 class="text-2xl font-semibold mb-4 text-gray-700">Add New Service</h2>
-        <form class="space-y-4">
-            <div class="h-[calc(100vh-347px)]" id="editor"></div>
+      <section class="fade-in" id="add-service">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-700">
+          Add New Service
+        </h2>
+        <form class="space-y-4" id="upload-form">
+          <div class="h-[calc(100vh-347px)]" id="editor"></div>
 
-            <div class="grid gap-4 mt-4 lg:grid-cols-2 grid-cols-1">
-                <div class="flex items-center space-x-2">
-                    <label class="text-sm font-medium text-gray-700 w-[140px]">CPU Limit (%):</label>
-                    <input class="flex-grow" id="cpu-slider" max="100" min="1" name="cpu" type="range" value="100"/>
-                    <span class="text-sm font-medium text-gray-700 w-[70px]" id="cpu-value">100%</span>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <label class="text-sm font-medium text-gray-700 w-[140px]">Memory Limit (MiB):</label>
-                    <input class="flex-grow" id="memory-slider" max="4096" min="1" name="memory" type="range"
-                           value="4096"/>
-                    <span class="text-sm font-medium text-gray-700  w-[70px]" id="memory-value">4096 MiB</span>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <label class="text-sm font-medium text-gray-700 w-[140px]">Disk Space (GiB):</label>
-                    <input class="flex-grow" id="disk-slider" max="100" min="1" name="disk" type="range" value="10"/>
-                    <span class="text-sm font-medium text-gray-700  w-[70px]" id="disk-value">10 GiB</span>
-                </div>
+          <div class="grid gap-4 mt-4 lg:grid-cols-2 grid-cols-1">
+            <div class="flex items-center space-x-2">
+              <label class="text-sm font-medium text-gray-700 w-[140px]"
+              >CPU Limit (%):</label>
+              <input
+                class="flex-grow"
+                id="cpu-slider"
+                max="100"
+                min="1"
+                name="cpu"
+                type="range"
+                value="100"
+              />
+              <span
+                class="text-sm font-medium text-gray-700 w-[70px]"
+                id="cpu-value"
+              >100%</span>
             </div>
-            <div class="flex justify-center">
-                <input class="mx-4 px-6 w-full bg-blue-500 hover:bg-blue-600 transition text-white font-semibold py-2 rounded shadow mt-4"
-                       type="submit"
-                       value="Create new service">
+            <div class="flex items-center space-x-2">
+              <label class="text-sm font-medium text-gray-700 w-[140px]"
+              >Memory Limit (MiB):</label>
+              <input
+                class="flex-grow"
+                id="memory-slider"
+                max="4096"
+                min="1"
+                name="memory"
+                type="range"
+                value="4096"
+              />
+              <span
+                class="text-sm font-medium text-gray-700 w-[70px]"
+                id="memory-value"
+              >4096 MiB</span>
             </div>
-            <input class="hidden" name="file" type="text"/>
+            <div class="flex items-center space-x-2">
+              <label class="text-sm font-medium text-gray-700 w-[140px]"
+              >Disk Space (GiB):</label>
+              <input
+                class="flex-grow"
+                id="disk-slider"
+                max="100"
+                min="1"
+                name="disk"
+                type="range"
+                value="10"
+              />
+              <span
+                class="text-sm font-medium text-gray-700 w-[70px]"
+                id="disk-value"
+              >10 GiB</span>
+            </div>
+          </div>
+          <div class="flex justify-center">
+            <input
+              id="upload-form-button"
+              class="mx-4 px-6 w-full bg-blue-500 hover:bg-blue-600 transition text-white font-semibold py-2 rounded shadow mt-4"
+              type="submit"
+              value="Create new service"
+            >
+          </div>
+          <input class="hidden" name="file" type="text" />
         </form>
-    </section>
-    <script>
+      </section>
+      <script>
         document.addEventListener("DOMContentLoaded", () => {
-            let monacoEditorInstance = null;
+          let monacoEditorInstance = null;
 
-            require.config({paths: {vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs'}});
-            require(['vs/editor/editor.main'], function () {
-                monacoEditorInstance = monaco.editor.create(document.getElementById('editor'), {
-                    value: ['services:',
-                        '\thello:',
-                        '\t\timage: docker.io/library/hello-world'].join('\n'),
-                    language: 'yaml'
-                });
+          require.config({
+            paths: {
+              vs:
+                "https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs",
+            },
+          });
+          require(["vs/editor/editor.main"], function () {
+            monacoEditorInstance = monaco.editor.create(
+              document.getElementById("editor"),
+              {
+                value: [
+                  "services:",
+                  "    hello:",
+                  "        image: docker.io/library/hello-world",
+                ].join("\n"),
+                language: "yaml",
+              },
+            );
 
-                window.addEventListener('resize', () => {
-                    if (monacoEditorInstance) {
-                        monacoEditorInstance.layout();
-                    }
-                });
+            window.addEventListener("resize", () => {
+              if (monacoEditorInstance) {
+                monacoEditorInstance.layout();
+              }
             });
+          });
 
-            const cpuSlider = document.getElementById('cpu-slider');
-            const cpuValueSpan = document.getElementById('cpu-value');
+          const cpuSlider = document.getElementById("cpu-slider");
+          const cpuValueSpan = document.getElementById("cpu-value");
 
-            const memorySlider = document.getElementById('memory-slider');
-            const memoryValueSpan = document.getElementById('memory-value');
+          const memorySlider = document.getElementById(
+            "memory-slider",
+          );
+          const memoryValueSpan = document.getElementById(
+            "memory-value",
+          );
 
-            const diskSlider = document.getElementById('disk-slider');
-            const diskValueSpan = document.getElementById('disk-value');
+          const diskSlider = document.getElementById("disk-slider");
+          const diskValueSpan = document.getElementById("disk-value");
 
-            const updateSliderValue = (slider, valueSpan, unit) => {
-                valueSpan.textContent = `${slider.value} ${unit}`;
-            };
+          const updateSliderValue = (slider, valueSpan, unit) => {
+            valueSpan.textContent = `${slider.value} ${unit}`;
+          };
 
-            if (cpuSlider && cpuValueSpan) {
-                cpuSlider.addEventListener('input', () => {
-                    updateSliderValue(cpuSlider, cpuValueSpan, '%');
-                });
-                updateSliderValue(cpuSlider, cpuValueSpan, '%');
-            }
+          if (cpuSlider && cpuValueSpan) {
+            cpuSlider.addEventListener("input", () => {
+              updateSliderValue(cpuSlider, cpuValueSpan, "%");
+            });
+            updateSliderValue(cpuSlider, cpuValueSpan, "%");
+          }
 
-            if (memorySlider && memoryValueSpan) {
-                memorySlider.addEventListener('input', () => {
-                    updateSliderValue(memorySlider, memoryValueSpan, 'MiB');
-                });
-                updateSliderValue(memorySlider, memoryValueSpan, 'MiB');
-            }
+          if (memorySlider && memoryValueSpan) {
+            memorySlider.addEventListener("input", () => {
+              updateSliderValue(memorySlider, memoryValueSpan, "MiB");
+            });
+            updateSliderValue(memorySlider, memoryValueSpan, "MiB");
+          }
 
-            if (diskSlider && diskValueSpan) {
-                diskSlider.addEventListener('input', () => {
-                    updateSliderValue(diskSlider, diskValueSpan, 'GiB');
-                });
-                updateSliderValue(diskSlider, diskValueSpan, 'GiB');
-            }
+          if (diskSlider && diskValueSpan) {
+            diskSlider.addEventListener("input", () => {
+              updateSliderValue(diskSlider, diskValueSpan, "GiB");
+            });
+            updateSliderValue(diskSlider, diskValueSpan, "GiB");
+          }
 
-            const form = document.querySelector('form');
-            const hiddenInput = form ? form.querySelector('input[type="text"].hidden') : null;
+          const form = document.querySelector("form");
+          const hiddenInput = form
+            ? form.querySelector('input[type="text"].hidden')
+            : null;
 
-            if (form && hiddenInput) {
-                form.addEventListener('submit', (event) => {
-                    if (monacoEditorInstance) {
-                        const editorContent = monacoEditorInstance.getValue();
-                        hiddenInput.value = editorContent;
-                        console.log("Editor content placed in hidden input:", hiddenInput.value);
-                    } else {
-                        console.warn("Monaco Editor instance not ready when form was submitted.");
-                    }
-                });
-            }
+          if (form && hiddenInput) {
+            form.addEventListener("submit", (event) => {
+              event.preventDefault();
+              console.log("YEE");
+              if (monacoEditorInstance) {
+                const editorContent = monacoEditorInstance.getValue();
+                hiddenInput.value = editorContent;
+
+                content = editorContent;
+                cpu = cpuSlider.value;
+                memory = memorySlider.value;
+                disk = diskSlider.value;
+
+                console.log(content);
+                fetch("/upload", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    "file": content,
+                    "cpu": Math.floor(cpu * 0.1),
+                    "memory": memory,
+                    "disk": disk,
+                  }),
+                }).then(
+                  (res) => res.text(),
+                ).then(
+                  (text) => {
+                    alert(text);
+                  },
+                );
+              } else {
+                console.warn(
+                  "Monaco Editor instance not ready when form was submitted.",
+                );
+              }
+            });
+          }
         });
-    </script>
+      </script>
 
-    <section class="hidden fade-in" id="profile">
+      <section class="hidden fade-in" id="profile">
         <h2 class="text-2xl font-semibold mb-4 text-gray-700">Your Profile</h2>
-        <div class="bg-white p-6 rounded shadow space-y-3">
-            <p><strong>Name:</strong> YEE</p>
-            <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-                dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
-                deserunt mollit anim id est laborum.
-            </p>
-            <button class="w-full bg-red-500 hover:bg-red-600 transition text-white font-semibold py-2 rounded shadow mt-4">
-                Delete Account
-            </button>
+        <div class="bg-white p-6 rounded shadow space-y-3" id="user-status">
+          <p><strong>Name:</strong> YEE</p>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in
+            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+            culpa qui officia deserunt mollit anim id est laborum.
+          </p>
+          <button
+            class="w-full bg-red-500 hover:bg-red-600 transition text-white font-semibold py-2 rounded shadow mt-4"
+          >
+            Delete Account
+          </button>
         </div>
-    </section>
+      </section>
+    </main>
 
-</main>
+    <footer class="bg-white shadow-inner mt-auto p-4 text-center text-gray-600">
+      &copy; 2025 MyCloud project. All rights reserved.
+    </footer>
 
-<footer class="bg-white shadow-inner mt-auto p-4 text-center text-gray-600">
-    &copy; 2025 MyCloud project. All rights reserved.
-</footer>
+    <script>
+      const navButtons = document.querySelectorAll("nav button");
+      const sections = {
+        dashboard: document.getElementById("dashboard"),
+        "add service": document.getElementById("add-service"),
+        profile: document.getElementById("profile"),
+      };
 
-<script>
-    const navButtons = document.querySelectorAll('nav button');
-    const sections = {
-        dashboard: document.getElementById('dashboard'),
-        'add service': document.getElementById('add-service'),
-        profile: document.getElementById('profile')
-    };
+      navButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          navButtons.forEach((b) => b.classList.remove("tab-active"));
+          btn.classList.add("tab-active");
 
-    navButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            navButtons.forEach(b => b.classList.remove('tab-active'));
-            btn.classList.add('tab-active');
-
-            const target = sections[btn.innerText.toLowerCase()];
-            console.log(target)
-            Object.values(sections).forEach(sec => {
-                sec.classList.add('hidden');
-            });
-            target.classList.remove('hidden');
+          const target = sections[btn.innerText.toLowerCase()];
+          console.log(target);
+          Object.values(sections).forEach((sec) => {
+            sec.classList.add("hidden");
+          });
+          target.classList.remove("hidden");
         });
-    });
-</script>
-
-</body>
+      });
+    </script>
+    <script src="/javascript/upload.js"></script>
+  </body>
 </html>

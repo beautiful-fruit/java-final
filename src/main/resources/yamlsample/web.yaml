@@ -1,4 +1,4 @@
 services:
   hello:
     image: docker.io/library/hello-world
-    ports: [ "80:80/tcp" ]
+    ports: ["80:80/tcp"]

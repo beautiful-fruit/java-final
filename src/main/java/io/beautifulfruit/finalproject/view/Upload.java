@@ -1,10 +1,10 @@
 package io.beautifulfruit.finalproject.view;
 
-import io.beautifulfruit.finalproject.etcd.deployment.DeploymentActiveModel;
-import io.beautifulfruit.finalproject.etcd.deployment.DeploymentEntity;
-import io.beautifulfruit.finalproject.etcd.user.UserActiveModel;
-import io.beautifulfruit.finalproject.etcd.user.UserEntity;
-import jakarta.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,10 +12,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import io.beautifulfruit.finalproject.etcd.deployment.DeploymentActiveModel;
+import io.beautifulfruit.finalproject.etcd.deployment.DeploymentEntity;
+import io.beautifulfruit.finalproject.etcd.user.UserActiveModel;
+import io.beautifulfruit.finalproject.etcd.user.UserEntity;
+import io.beautifulfruit.finalproject.k8s.Quota;
+import jakarta.servlet.http.HttpServletRequest;
 
 
 @RestController
@@ -44,7 +46,7 @@ public class Upload {
             return "fail";
 
         UserActiveModel userActiveModel = userEntity.findUserByName(username).join();
-
+        
         if (userActiveModel == null)
             return "fail";
 
@@ -53,12 +55,13 @@ public class Upload {
             return "fail";
 
         int cpu, memory, disk;
+        System.out.println(body.get("cpu")+ " " + body.get("memory")+ " " + body.get("disk"));
         try {
             cpu = Integer.parseInt(body.get("cpu"));
             memory = Integer.parseInt(body.get("memory"));
             disk = Integer.parseInt(body.get("disk"));
         } catch (Exception e) {
-            return "fail";
+            return e.toString();
         }
         if (cpu > userActiveModel.quota.cpu
                 || memory > userActiveModel.quota.memory
@@ -70,7 +73,7 @@ public class Upload {
         userActiveModel.quota.memory -= memory;
         userActiveModel.quota.disk -= disk;
         DeploymentActiveModel deploymentActiveModel =
-                new DeploymentActiveModel(file, userActiveModel.name);
+                new DeploymentActiveModel(file, userActiveModel.name, new Quota(memory, cpu, disk));
         try {
             deploymentEntity.updateDeployment(deploymentActiveModel).join();
             userActiveModel.addDeploymentID(deploymentActiveModel.uuid);
@@ -78,7 +81,7 @@ public class Upload {
         } catch (Exception e) {
             System.out.println(e);
             // TODO: User remove the deployment
-            return "fail";
+            return e.toString();
         }
         System.out.println("success");
         uploadStatus = "Success";
