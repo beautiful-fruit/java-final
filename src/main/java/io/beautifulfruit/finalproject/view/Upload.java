@@ -1,10 +1,11 @@
 package io.beautifulfruit.finalproject.view;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import io.beautifulfruit.finalproject.etcd.deployment.DeploymentActiveModel;
+import io.beautifulfruit.finalproject.etcd.deployment.DeploymentEntity;
+import io.beautifulfruit.finalproject.etcd.user.UserActiveModel;
+import io.beautifulfruit.finalproject.etcd.user.UserEntity;
+import io.beautifulfruit.finalproject.k8s.Quota;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,12 +13,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.beautifulfruit.finalproject.etcd.deployment.DeploymentActiveModel;
-import io.beautifulfruit.finalproject.etcd.deployment.DeploymentEntity;
-import io.beautifulfruit.finalproject.etcd.user.UserActiveModel;
-import io.beautifulfruit.finalproject.etcd.user.UserEntity;
-import io.beautifulfruit.finalproject.k8s.Quota;
-import jakarta.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -46,7 +45,7 @@ public class Upload {
             return "fail";
 
         UserActiveModel userActiveModel = userEntity.findUserByName(username).join();
-        
+
         if (userActiveModel == null)
             return "fail";
 
@@ -55,7 +54,7 @@ public class Upload {
             return "fail";
 
         int cpu, memory, disk;
-        System.out.println(body.get("cpu")+ " " + body.get("memory")+ " " + body.get("disk"));
+        System.out.println(body.get("cpu") + " " + body.get("memory") + " " + body.get("disk"));
         try {
             cpu = Integer.parseInt(body.get("cpu"));
             memory = Integer.parseInt(body.get("memory"));
