@@ -1,39 +1,39 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <meta charset="UTF-8">
     <title>UploadPage</title>
-    <link href="/css/style.css" rel="stylesheet"/>
-</head>
-<body>
-<h1>Upload Docker Compose File</h1>
-<form id="upload_form">
-    <label>Docker compose file: </label>
-    <input name="file" required type="file">
-    <br>
-    <br>
-    <label>CPU: </label>
-    <input name="cpu" required type="number">
-    <label> x 0.1</label>
-    <br>
-    <br>
-    <label>Memory: </label>
-    <input name="memory" required type="number">
-    <label> MB</label>
-    <br>
-    <br>
-    <label>Disk: </label>
-    <input name="disk" required type="number">
-    <label> MB</label>
-    <br>
-    <br>
-    <button type="submit">Upload</button>
-</form>
-<p id="upload_status"></p>
+    <link href="/css/style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <h1>Upload Docker Compose File</h1>
+    <form id="upload_form">
+      <label>Docker compose file: </label>
+      <input name="file" required type="file">
+      <br>
+      <br>
+      <label>CPU: </label>
+      <input name="cpu" required type="number">
+      <label> x 0.1</label>
+      <br>
+      <br>
+      <label>Memory: </label>
+      <input name="memory" required type="number">
+      <label> MB</label>
+      <br>
+      <br>
+      <label>Disk: </label>
+      <input name="disk" required type="number">
+      <label> MB</label>
+      <br>
+      <br>
+      <button type="submit">Upload</button>
+    </form>
+    <p id="upload_status"></p>
 
-<div id="user-status"></div>
-<div id="container-status"></div>
+    <div id="user-status"></div>
+    <div id="container-status"></div>
 
-<script src="/javascript/upload.js"></script>
-</body>
+    <script src="/javascript/upload.js"></script>
+  </body>
 </html>
