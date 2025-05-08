@@ -420,8 +420,12 @@ public class K8sResources {
                     this.targetPort = new IntOrString((String) map.get("targetPort"));
                 } else if (raw instanceof String) {
                     this.protocol = "TCP";
-                    this.port = Integer.parseInt((String) raw);
-                    this.targetPort = new IntOrString(this.port);
+                    String[] parts = ((String) raw).split("[:/]");
+                    this.port = Integer.parseInt(parts[0]);
+                    this.targetPort = new IntOrString(parts[1]);
+                    if (parts.length == 3) {
+                        this.protocol = parts[2];
+                    }
                 } else {
                     throw new RuntimeException("Invalid port format");
                 }
