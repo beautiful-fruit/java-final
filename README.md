@@ -60,10 +60,48 @@ delete all keys in etcd:
 etcdctl del "" --prefix
 ```
 
-## run the project
+## run in production
 
-## Run the project
+### configuration by environment variable
 
-```bash
-gradlew bootRun
+- ETCD_ENDPOINT_0, ETCD_ENDPOINT_1: uris for etcd cluster, start with `http://` or `grpc://`
+- KUBECONFIG: path of kubernetes config(yaml file)
+
+kubernetes config should look like:
+```yaml
+apiVersion: v1
+clusters:
+  - cluster:
+      certificate-authority-data: aaa
+      server: https://127.0.0.1:6443
+    name: default
+contexts:
+  - context:
+      cluster: default
+      user: default
+    name: default
+current-context: default
+kind: Config
+preferences: {}
+users:
+  - name: default
+    user:
+      client-certificate-data: bbb
+      client-key-data: ccc
+```
+
+If backend is deploy inside kubernetes, use following role privilege setting(and grant the role to the pod):
+```yml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: my-cloud-provisioning
+
+rules:
+  - apiGroups:
+      - "*"
+    resources:
+      - "*"
+    verbs:
+      - "*"
 ```
