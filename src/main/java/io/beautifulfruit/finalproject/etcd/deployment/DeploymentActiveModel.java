@@ -5,7 +5,7 @@ import io.beautifulfruit.finalproject.k8s.Quota;
 import java.util.UUID;
 
 public class DeploymentActiveModel {
-    public String uuid; // deployment_uuid
+    public UUID uuid; // deployment_uuid
     public String dockercomposeText; // dockercompose_text
     public String ownername; // ownername
     public Quota quota;
@@ -19,14 +19,14 @@ public class DeploymentActiveModel {
     }
 
     public DeploymentActiveModel(String dockercomposeText, String ownername, Quota quota) {
-        this.uuid = UUID.randomUUID().toString();
+        this.uuid = UUID.randomUUID();
         this.dockercomposeText = dockercomposeText;
         this.ownername = ownername;
         this.quota = quota;
     }
 
     public DeploymentActiveModel(String dockercomposeText, String ownername) {
-        this.uuid = UUID.randomUUID().toString();
+        this.uuid = UUID.randomUUID();
         this.dockercomposeText = dockercomposeText;
         this.ownername = ownername;
         this.quota = Quota.defaultDeploymentQuota();

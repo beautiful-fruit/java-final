@@ -1,4 +1,4 @@
 services:
   hello:
-    image: docker.io/library/hello-world
+    image: docker.io/strm/helloworld-http
     ports: [ "80:80/tcp" ]

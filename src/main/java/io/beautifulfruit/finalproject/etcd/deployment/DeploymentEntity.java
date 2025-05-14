@@ -31,11 +31,11 @@ public class DeploymentEntity {
     }
 
     public CompletableFuture<Void> saveDeployment(DeploymentActiveModel deployment) throws Exception {
-        byte[] key = deployment.uuid.getBytes(StandardCharsets.UTF_8);
+        byte[] key = deployment.uuid.toString().getBytes(StandardCharsets.UTF_8);
 
         DeploymentModel deploymentModel = new DeploymentModel(deployment);
 
-        K8sResources resources = new K8sResources(deploymentModel.dockercompose_text);
+        K8sResources resources = new K8sResources(deployment.uuid, deploymentModel.dockercompose_text);
 
         return userEntity.findUserByName(deploymentModel.ownername).thenCompose(user -> {
 //            if (!user.quota.hasMoreThan(deploymentModel.quota)) {

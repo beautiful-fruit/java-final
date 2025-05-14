@@ -5,6 +5,8 @@ import de.mkammerer.argon2.Argon2Factory;
 import io.beautifulfruit.finalproject.k8s.Quota;
 
 import java.util.ArrayList;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class UserActiveModel {
     private static final Argon2 argon2 = Argon2Factory.create();
@@ -33,10 +35,10 @@ public class UserActiveModel {
     }
 
     public ArrayList<String> getOwnDeploymentID() {
-        return (ArrayList<String>) superblock.uuids.clone();
+        return (ArrayList<String>) superblock.uuids.stream().map(UUID::toString).collect(Collectors.toList());
     }
 
-    public void addDeploymentID(String uuid) {
+    public void addDeploymentID(UUID uuid) {
         // TODO: actually do diff for concurrent access
         superblock.uuids.add(uuid);
     }

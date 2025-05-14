@@ -18,10 +18,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -58,7 +55,7 @@ public class K8sResources {
         Configuration.setDefaultApiClient(client);
     }
 
-    UUID uuid = UUID.randomUUID();
+    UUID uuid;
     String serviceName;
     /**
      * A List of kubernetes resources
@@ -76,15 +73,26 @@ public class K8sResources {
         this.objects = List.of(objects);
     }
 
-    public K8sResources(String dockerCompose) throws Exception {
+    public K8sResources(UUID uuid, String dockerCompose) throws Exception {
+        this.uuid = uuid;
         Yaml yaml = new Yaml();
         Map<String, Object> data = yaml.load(dockerCompose);
         this.serviceName = "autogen-service-" + uuid.toString() + "-name";
         try {
             if (!data.containsKey("services")) throw new Exception("No services found");
-            this.objects.add(parseDeployment(data.get("services")));
-            this.objects.add(parseIngress());
-            this.objects.add(parseServices());
+            ComposeServices services = new ComposeServices(data.get("services"));
+            this.objects.add(parseDeployment(services));
+
+            Integer container80Port = (services.services.stream()
+                    .map(s -> s.ports.containerPortMap80()))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
+
+            if (container80Port != null) {
+                this.objects.add(parseIngress());
+                this.objects.add(parseServices(container80Port));
+            }
             this.objects.addAll(parseVolumnes(data.get("services"), uuid));
             this.objects.addAll(parsePersistentVolumeClaim(data.get("services")));
         } catch (Exception e) {
@@ -193,9 +201,7 @@ public class K8sResources {
         return objects;
     }
 
-    public V1Deployment parseDeployment(Object raw) {
-        ComposeServices services = new ComposeServices(raw);
-
+    public V1Deployment parseDeployment(ComposeServices services) {
         V1PodSpec spec = new V1PodSpec();
 
         for (ComposeServices.Service service : services.services) {
@@ -203,7 +209,7 @@ public class K8sResources {
             container.setName(service.name);
             container.setImage(service.image);
             if (service.ports.hasPort80()) {
-                container = container.addPortsItem(new V1ContainerPort().containerPort(80));
+                container = container.addPortsItem(new V1ContainerPort().containerPort(service.ports.containerPortMap80()));
             }
             for (ComposeMounts.Mount mount : service.mounts.mounts) {
                 container = container.addVolumeMountsItem(new V1VolumeMount()
@@ -237,7 +243,7 @@ public class K8sResources {
         ingress.setMetadata(new V1ObjectMeta().name(uuid.toString()));
         ingress.setSpec(new V1IngressSpec().ingressClassName(ingressClass)
                 .addRulesItem(new V1IngressRule()
-                        .host(uuid.toString() + ".example.com")
+                        .host("s" + uuid.toString() + "p.example.com")
                         .http(new V1HTTPIngressRuleValue()
                                 .addPathsItem(new V1HTTPIngressPath()
                                         .path("/")
@@ -249,7 +255,7 @@ public class K8sResources {
         return ingress;
     }
 
-    public V1Service parseServices() {
+    public V1Service parseServices(int targetPort) {
         V1Service service = new V1Service();
         service.setApiVersion("v1");
         service.setKind("Service");
@@ -259,7 +265,7 @@ public class K8sResources {
                 .selector(Map.of("app", uuid.toString()))
                 .ports(List.of(new V1ServicePort()
                         .port(80)
-                        .targetPort(new IntOrString(80)))));
+                        .targetPort(new IntOrString(targetPort)))));
         return service;
     }
 
@@ -407,22 +413,31 @@ public class K8sResources {
             return false;
         }
 
+        public Integer containerPortMap80() {
+            for (Port port : ports) {
+                if (port.port == 80) {
+                    return port.targetPort;
+                }
+            }
+            return null;
+        }
+
         private static class Port {
             private String protocol;
             private int port;
-            private IntOrString targetPort;
+            private int targetPort;
 
             public Port(Object raw) {
                 if (raw instanceof Map) {
                     Map<String, Object> map = (Map<String, Object>) raw;
                     this.protocol = (String) map.get("protocol");
                     this.port = (int) map.get("port");
-                    this.targetPort = new IntOrString((String) map.get("targetPort"));
+                    this.targetPort = Integer.parseInt((String) map.get("targetPort"));
                 } else if (raw instanceof String) {
                     this.protocol = "TCP";
                     String[] parts = ((String) raw).split("[:/]");
                     this.port = Integer.parseInt(parts[0]);
-                    this.targetPort = new IntOrString(parts[1]);
+                    this.targetPort = Integer.parseInt(parts[1]);
                     if (parts.length == 3) {
                         this.protocol = parts[2];
                     }

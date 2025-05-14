@@ -4,11 +4,12 @@ import com.google.gson.Gson;
 import io.beautifulfruit.finalproject.k8s.Quota;
 
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 public class DeploymentModel {
     private static final Gson gson = new Gson();
 
-    public final String deployment_uuid;
+    public final UUID deployment_uuid;
     public final String dockercompose_text;
     public final String ownername;
     public final Quota quota;

@@ -42,7 +42,7 @@ setInterval(() => {
                     row.className =
                         "hover:bg-blue-50 transition duration-150 cursor-pointer border-b hover:border-t hover:shadow-inner";
                     row.innerHTML = `
-                        <td class="px-4 py-3 text-center">${container.uuid}</td>
+                        <td class="px-4 py-3 text-center"><a href="http://s${container.uuid}p.example.com">${container.uuid}</a></td>
                          <td class="px-4 py-3 text-center">WebServer1</td>
                         <td class="px-4 py-3 text-center">${container.cpu * 10}%</td>
                         <td class="px-4 py-3 text-center">${container.memory} MB</td>
