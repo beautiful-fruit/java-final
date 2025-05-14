@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Component
@@ -60,8 +61,8 @@ public class DeploymentEntity {
         return this.saveDeployment(deployment);
     }
 
-    public CompletableFuture<DeploymentActiveModel> findDeploymentByUuid(String uuid) {
-        byte[] key = uuid.getBytes(StandardCharsets.UTF_8);
+    public CompletableFuture<DeploymentActiveModel> findDeploymentByUuid(UUID uuid) {
+        byte[] key = uuid.toString().getBytes(StandardCharsets.UTF_8);
 
         return connection.get(DEPLOYMENT_PREFIX, key)
                 .thenApply(bytes -> {

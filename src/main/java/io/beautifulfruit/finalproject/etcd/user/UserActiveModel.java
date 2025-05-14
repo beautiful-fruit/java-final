@@ -6,7 +6,6 @@ import io.beautifulfruit.finalproject.k8s.Quota;
 
 import java.util.ArrayList;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class UserActiveModel {
     private static final Argon2 argon2 = Argon2Factory.create();
@@ -34,8 +33,8 @@ public class UserActiveModel {
         return argon2.verify(passwordHash, password.getBytes());
     }
 
-    public ArrayList<String> getOwnDeploymentID() {
-        return (ArrayList<String>) superblock.uuids.stream().map(UUID::toString).collect(Collectors.toList());
+    public ArrayList<UUID> getOwnDeploymentID() {
+        return (ArrayList<UUID>) superblock.uuids.clone();
     }
 
     public void addDeploymentID(UUID uuid) {
@@ -43,11 +42,11 @@ public class UserActiveModel {
         superblock.uuids.add(uuid);
     }
 
-    public void removeDeploymentID(String uuid) {
+    public void removeDeploymentID(UUID uuid) {
         superblock.uuids.remove(uuid);
     }
 
-    public boolean containsDeploymentID(String uuid) {
+    public boolean containsDeploymentID(UUID uuid) {
         return superblock.uuids.contains(uuid);
     }
 }

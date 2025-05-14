@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
+import java.util.UUID;
 
 
 @RestController
@@ -38,7 +39,14 @@ public class Delete {
             return "fail";
 
         UserActiveModel userActiveModel = userEntity.findUserByName(username).join();
-        String uuid = body.get("uuid");
+
+        UUID uuid;
+        try {
+            uuid = UUID.fromString(body.get("uuid"));
+        } catch (Exception e) {
+            return "fail";
+        }
+
         if (!userActiveModel.containsDeploymentID(uuid))
             return "fail";
 

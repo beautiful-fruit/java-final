@@ -13,10 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @RestController
@@ -50,7 +47,7 @@ public class Upload {
             return "fail";
 
         String file = body.get("file");
-        if (file == null || file.length() == 0)
+        if (file == null || file.isEmpty())
             return "fail";
 
         int cpu, memory, disk;
@@ -98,16 +95,16 @@ public class Upload {
         if (userActiveModel == null)
             return null;
 
-        ArrayList<String> uuids = userActiveModel.getOwnDeploymentID();
+        ArrayList<UUID> uuids = userActiveModel.getOwnDeploymentID();
         String dockerCompose = "";
         Map<String, Object> informations = new HashMap<>();
         List<Map<String, Object>> containers = new ArrayList<>();
 
-        for (String uuid : uuids) {
+        for (UUID uuid : uuids) {
             DeploymentActiveModel deploymentActiveModel =
                     deploymentEntity.findDeploymentByUuid(uuid).join();
             Map<String, Object> container = new HashMap<>();
-            container.put("uuid", uuid);
+            container.put("uuid", uuid.toString());
             container.put("cpu", deploymentActiveModel.quota.cpu);
             container.put("memory", deploymentActiveModel.quota.memory);
             container.put("disk", deploymentActiveModel.quota.disk);

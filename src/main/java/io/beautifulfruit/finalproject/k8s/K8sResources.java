@@ -423,9 +423,9 @@ public class K8sResources {
         }
 
         private static class Port {
+            private final int port;
+            private final int targetPort;
             private String protocol;
-            private int port;
-            private int targetPort;
 
             public Port(Object raw) {
                 if (raw instanceof Map) {
