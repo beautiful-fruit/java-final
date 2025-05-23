@@ -1,5 +1,17 @@
 package io.beautifulfruit.finalproject.k8s;
 
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+
+import org.yaml.snakeyaml.Yaml;
+
 import io.kubernetes.client.common.KubernetesObject;
 import io.kubernetes.client.custom.IntOrString;
 import io.kubernetes.client.custom.Quantity;
@@ -10,17 +22,38 @@ import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.AppsV1Api;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.apis.NetworkingV1Api;
-import io.kubernetes.client.openapi.models.*;
+import io.kubernetes.client.openapi.models.V1Container;
+import io.kubernetes.client.openapi.models.V1ContainerPort;
+import io.kubernetes.client.openapi.models.V1Deployment;
+import io.kubernetes.client.openapi.models.V1DeploymentSpec;
+import io.kubernetes.client.openapi.models.V1HTTPIngressPath;
+import io.kubernetes.client.openapi.models.V1HTTPIngressRuleValue;
+import io.kubernetes.client.openapi.models.V1HostPathVolumeSource;
+import io.kubernetes.client.openapi.models.V1Ingress;
+import io.kubernetes.client.openapi.models.V1IngressBackend;
+import io.kubernetes.client.openapi.models.V1IngressRule;
+import io.kubernetes.client.openapi.models.V1IngressServiceBackend;
+import io.kubernetes.client.openapi.models.V1IngressSpec;
+import io.kubernetes.client.openapi.models.V1LabelSelector;
+import io.kubernetes.client.openapi.models.V1ObjectMeta;
+import io.kubernetes.client.openapi.models.V1PersistentVolume;
+import io.kubernetes.client.openapi.models.V1PersistentVolumeClaim;
+import io.kubernetes.client.openapi.models.V1PersistentVolumeClaimSpec;
+import io.kubernetes.client.openapi.models.V1PersistentVolumeClaimVolumeSource;
+import io.kubernetes.client.openapi.models.V1PersistentVolumeSpec;
+import io.kubernetes.client.openapi.models.V1Pod;
+import io.kubernetes.client.openapi.models.V1PodSpec;
+import io.kubernetes.client.openapi.models.V1PodTemplateSpec;
+import io.kubernetes.client.openapi.models.V1Service;
+import io.kubernetes.client.openapi.models.V1ServiceBackendPort;
+import io.kubernetes.client.openapi.models.V1ServicePort;
+import io.kubernetes.client.openapi.models.V1ServiceSpec;
+import io.kubernetes.client.openapi.models.V1Volume;
+import io.kubernetes.client.openapi.models.V1VolumeMount;
+import io.kubernetes.client.openapi.models.V1VolumeResourceRequirements;
 import io.kubernetes.client.util.ClientBuilder;
 import io.kubernetes.client.util.Config;
 import io.kubernetes.client.util.KubeConfig;
-import org.yaml.snakeyaml.Yaml;
-
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 /**
  * K8sResources is a class that represents a list of kubernetes resources
@@ -80,7 +113,7 @@ public class K8sResources {
         this.serviceName = "autogen-service-" + uuid.toString() + "-name";
         try {
             if (!data.containsKey("services")) throw new Exception("No services found");
-            ComposeServices services = new ComposeServices(data.get("services"));
+            ComposeServices services = new ComposeServices(data.get("services")); // create services via data map
             this.objects.add(parseDeployment(services));
 
             Integer container80Port = (services.services.stream()
@@ -243,10 +276,10 @@ public class K8sResources {
         ingress.setMetadata(new V1ObjectMeta().name(uuid.toString()));
         ingress.setSpec(new V1IngressSpec().ingressClassName(ingressClass)
                 .addRulesItem(new V1IngressRule()
-                        .host("s" + uuid.toString() + "p.example.com")
+                        .host("example.com")
                         .http(new V1HTTPIngressRuleValue()
                                 .addPathsItem(new V1HTTPIngressPath()
-                                        .path("/")
+                                        .path("/" + uuid.toString())
                                         .pathType("Prefix")
                                         .backend(new V1IngressBackend()
                                                 .service(new V1IngressServiceBackend()

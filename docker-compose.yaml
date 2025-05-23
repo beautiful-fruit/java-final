@@ -20,7 +20,7 @@ services:
   k3s:
     profiles: [dev, ci]
     image: rancher/k3s:v1.29.15-k3s1
-    ports: ["127.0.0.1:6443:6443"]
+    ports: ["127.0.0.1:6443:6443", "127.0.0.1:80:80"]
     privileged: true
     command: ["server"]
     environment:
